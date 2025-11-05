@@ -2,7 +2,9 @@
 let state = {
     currentComplaint: null,
     complaints: [],
-    complaintCounter: 1000
+    complaintCounter: 1000,
+    currentCompletionIndex: null,
+    selectedCompletionImage: null
 };
 
 // Close instructions overlay
@@ -165,14 +167,62 @@ function assignComplaint(index) {
     showNotification('Complaint #' + complaint.id + ' assigned to ' + complaint.assignedTo);
 }
 
-// Step 3: Officer completes complaint
+// Step 3: Officer completes complaint - Opens modal
 function completeComplaint(index) {
-    const complaint = state.complaints[index];
+    state.currentCompletionIndex = index;
+    state.selectedCompletionImage = null;
+
+    // Reset modal state
+    document.getElementById('upload-area').style.display = 'block';
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('preview-img').src = '';
+    document.getElementById('btn-submit-completion').disabled = true;
+
+    // Show modal
+    document.getElementById('completion-modal').classList.add('active');
+}
+
+// Close completion modal
+function closeCompletionModal() {
+    document.getElementById('completion-modal').classList.remove('active');
+    state.currentCompletionIndex = null;
+    state.selectedCompletionImage = null;
+}
+
+// Use sample image
+function useSampleImage() {
+    state.selectedCompletionImage = createSewageAfterImage();
+    showImagePreview(state.selectedCompletionImage);
+}
+
+// Change image
+function changeImage() {
+    document.getElementById('image-upload').click();
+}
+
+// Show image preview
+function showImagePreview(imageSrc) {
+    document.getElementById('upload-area').style.display = 'none';
+    document.getElementById('image-preview').style.display = 'block';
+    document.getElementById('preview-img').src = imageSrc;
+    document.getElementById('btn-submit-completion').disabled = false;
+}
+
+// Submit completion with image
+function submitCompletion() {
+    if (state.currentCompletionIndex === null || !state.selectedCompletionImage) {
+        return;
+    }
+
+    const complaint = state.complaints[state.currentCompletionIndex];
     complaint.status = 'completed';
-    complaint.afterImage = createSewageAfterImage();
+    complaint.afterImage = state.selectedCompletionImage;
 
     updateStats();
     renderComplaintsTable();
+
+    // Close modal
+    closeCompletionModal();
 
     // Send WhatsApp notification to user
     setTimeout(() => {
@@ -324,6 +374,53 @@ function createSewageAfterImage() {
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('send-complaint').addEventListener('click', sendComplaint);
+
+    // Image upload functionality
+    const uploadArea = document.getElementById('upload-area');
+    const imageUpload = document.getElementById('image-upload');
+
+    // Click to upload
+    uploadArea.addEventListener('click', () => {
+        imageUpload.click();
+    });
+
+    // Handle file selection
+    imageUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                state.selectedCompletionImage = event.target.result;
+                showImagePreview(state.selectedCompletionImage);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                state.selectedCompletionImage = event.target.result;
+                showImagePreview(state.selectedCompletionImage);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 });
 
 // Add CSS animation for notifications

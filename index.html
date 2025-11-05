@@ -95,9 +95,43 @@
                 <li><strong>View in Portal:</strong> Watch the complaint appear in the admin portal</li>
                 <li><strong>Assign Complaint:</strong> Click "Assign" to assign the complaint to an officer</li>
                 <li><strong>Complete Work:</strong> Click "Mark Complete" after assignment</li>
+                <li><strong>Upload Photo:</strong> Upload or use sample completion photo</li>
                 <li><strong>User Notification:</strong> User receives resolution confirmation via WhatsApp</li>
             </ol>
             <button class="start-btn" onclick="closeInstructions()">Start Demo</button>
+        </div>
+    </div>
+
+    <!-- Completion Modal -->
+    <div class="modal-overlay" id="completion-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mark Complaint as Completed</h2>
+                <button class="modal-close" onclick="closeCompletionModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Please upload a photo showing the resolved issue (after the work is completed).</p>
+
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📷</div>
+                    <p>Click to upload or drag and drop</p>
+                    <p class="upload-hint">Upload a photo of the cleaned location</p>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="image-preview" id="image-preview" style="display: none;">
+                    <img id="preview-img" src="" alt="Preview">
+                    <button class="btn-change-image" onclick="changeImage()">Change Image</button>
+                </div>
+
+                <div class="divider">OR</div>
+
+                <button class="btn-use-sample" onclick="useSampleImage()">Use Sample Completion Photo</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCompletionModal()">Cancel</button>
+                <button class="btn-submit" id="btn-submit-completion" onclick="submitCompletion()" disabled>Submit & Notify User</button>
+            </div>
         </div>
     </div>
 
