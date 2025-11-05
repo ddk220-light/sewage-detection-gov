@@ -93,12 +93,12 @@ function renderComplaintsTable() {
         }
 
         row.innerHTML = `
-            <div class="complaint-id">#${complaint.id}</div>
-            <div class="complaint-location">${complaint.location}</div>
-            <div class="complaint-type">${complaint.type}</div>
-            <div><span class="status-badge ${statusClass}">${statusText}</span></div>
-            <div class="assigned-officer">${complaint.assignedTo || '-'}</div>
-            <div>${actionButton}</div>
+            <div class="complaint-id" data-label="ID:">#${complaint.id}</div>
+            <div class="complaint-location" data-label="Location:">${complaint.location}</div>
+            <div class="complaint-type" data-label="Type:">${complaint.type}</div>
+            <div data-label="Status:"><span class="status-badge ${statusClass}">${statusText}</span></div>
+            <div class="assigned-officer" data-label="Assigned To:">${complaint.assignedTo || '-'}</div>
+            <div data-label="Action:">${actionButton}</div>
         `;
 
         tableBody.appendChild(row);
