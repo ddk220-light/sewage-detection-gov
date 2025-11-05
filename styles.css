@@ -706,27 +706,504 @@ body {
 }
 
 /* Responsive Design */
+
+/* Tablet and below (768px) */
 @media (max-width: 768px) {
+    body {
+        height: auto;
+        overflow: auto;
+    }
+
     .container {
         flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .panel {
+        height: auto;
+        min-height: 50vh;
     }
 
     .whatsapp-panel {
         max-width: 100%;
         border-right: none;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 2px solid #e0e0e0;
+        min-height: 50vh;
+    }
+
+    .whatsapp-chat {
+        min-height: 40vh;
+    }
+
+    .admin-header {
+        padding: 15px 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .emblem {
+        font-size: 36px;
+    }
+
+    .header-text h1 {
+        font-size: 18px;
+    }
+
+    .header-text p {
+        font-size: 12px;
+    }
+
+    .admin-content {
+        padding: 20px 15px;
     }
 
     .admin-stats {
         grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+    }
+
+    .complaints-section {
+        padding: 15px;
+    }
+
+    .complaints-section h2 {
+        font-size: 16px;
+    }
+
+    /* Make table scrollable horizontally on tablet */
+    .complaints-table {
+        overflow-x: auto;
+        display: block;
     }
 
     .table-header, .complaint-row {
-        grid-template-columns: 60px 1fr 100px 100px;
-        font-size: 11px;
+        grid-template-columns: 70px 1fr 1fr 110px 120px;
+        font-size: 12px;
+        gap: 8px;
+        padding: 10px;
     }
 
     .col-type, .complaint-type {
         display: none;
+    }
+
+    .btn-assign, .btn-complete {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+
+    /* Instructions modal */
+    .instructions-content {
+        padding: 30px 20px;
+        max-width: 90%;
+        margin: 20px;
+    }
+
+    .instructions-content h2 {
+        font-size: 20px;
+    }
+
+    .instructions-content h3 {
+        font-size: 16px;
+    }
+
+    .instructions-content p,
+    .instructions-content li {
+        font-size: 14px;
+    }
+
+    /* Completion modal */
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .modal-header {
+        padding: 15px 20px;
+    }
+
+    .modal-body {
+        padding: 20px 16px;
+    }
+
+    .upload-area {
+        padding: 30px 15px;
+    }
+
+    .upload-icon {
+        font-size: 40px;
+    }
+
+    .modal-footer {
+        padding: 12px 20px;
+        flex-wrap: wrap;
+    }
+
+    .btn-cancel, .btn-submit {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* Mobile devices (480px) */
+@media (max-width: 480px) {
+    .whatsapp-header {
+        padding: 8px 12px;
+    }
+
+    .header-content {
+        gap: 8px;
+    }
+
+    .profile-pic {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+
+    .contact-name {
+        font-size: 15px;
+    }
+
+    .contact-status {
+        font-size: 11px;
+    }
+
+    .whatsapp-chat {
+        padding: 12px;
+    }
+
+    .message {
+        max-width: 85%;
+        padding: 6px 10px;
+    }
+
+    .message-text {
+        font-size: 13px;
+    }
+
+    .whatsapp-input {
+        padding: 8px;
+    }
+
+    .action-btn {
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    .admin-header {
+        padding: 12px 15px;
+    }
+
+    .header-logo {
+        gap: 10px;
+    }
+
+    .emblem {
+        font-size: 28px;
+    }
+
+    .header-text h1 {
+        font-size: 16px;
+    }
+
+    .header-text p {
+        font-size: 11px;
+    }
+
+    .admin-user {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .admin-content {
+        padding: 15px 10px;
+    }
+
+    .admin-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+    }
+
+    .stat-number {
+        font-size: 28px;
+        margin-bottom: 0;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .complaints-section {
+        padding: 12px;
+    }
+
+    .complaints-section h2 {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+
+    /* Mobile-optimized table - card layout */
+    .table-header {
+        display: none;
+    }
+
+    .complaint-row {
+        display: block;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        background: white;
+    }
+
+    .complaint-row:hover {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .complaint-row > div {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        align-items: center;
+    }
+
+    .complaint-row > div:not(:last-child) {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .complaint-row > div::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #666;
+        font-size: 12px;
+        margin-right: 10px;
+    }
+
+    .complaint-id {
+        font-size: 14px;
+    }
+
+    .complaint-location,
+    .assigned-officer {
+        font-size: 12px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    .btn-assign, .btn-complete {
+        width: 100%;
+        margin-top: 8px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .no-complaints {
+        padding: 40px 15px;
+        font-size: 13px;
+    }
+
+    /* Instructions modal - full screen on mobile */
+    .instructions-content {
+        padding: 20px 16px;
+        max-width: 95%;
+        margin: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .instructions-content h2 {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    .instructions-content h3 {
+        font-size: 15px;
+        margin-top: 15px;
+        margin-bottom: 8px;
+    }
+
+    .instructions-content p {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .instructions-content li {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .start-btn {
+        padding: 14px;
+        font-size: 15px;
+        margin-top: 15px;
+    }
+
+    /* Completion modal - optimized for mobile */
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .modal-header {
+        padding: 12px 16px;
+    }
+
+    .modal-header h2 {
+        font-size: 16px;
+    }
+
+    .modal-close {
+        font-size: 24px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    .modal-body > p {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+
+    .upload-area {
+        padding: 24px 12px;
+    }
+
+    .upload-icon {
+        font-size: 36px;
+        margin-bottom: 8px;
+    }
+
+    .upload-area p {
+        font-size: 13px;
+        margin: 6px 0;
+    }
+
+    .upload-hint {
+        font-size: 11px;
+    }
+
+    .image-preview {
+        padding: 16px;
+    }
+
+    .image-preview img {
+        max-height: 250px;
+    }
+
+    .btn-change-image {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+
+    .divider {
+        margin: 20px 0;
+        font-size: 13px;
+    }
+
+    .btn-use-sample {
+        padding: 14px;
+        font-size: 13px;
+    }
+
+    .modal-footer {
+        padding: 12px 16px;
+        flex-direction: column;
+    }
+
+    .btn-cancel, .btn-submit {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}
+
+/* Small mobile devices (360px) */
+@media (max-width: 360px) {
+    .whatsapp-header {
+        padding: 6px 10px;
+    }
+
+    .profile-pic {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+
+    .contact-name {
+        font-size: 14px;
+    }
+
+    .emblem {
+        font-size: 24px;
+    }
+
+    .header-text h1 {
+        font-size: 14px;
+    }
+
+    .header-text p {
+        font-size: 10px;
+    }
+
+    .admin-stats {
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .complaint-row {
+        padding: 10px;
+    }
+
+    .instructions-content {
+        padding: 16px 12px;
+    }
+
+    .modal-body {
+        padding: 12px;
     }
 }
