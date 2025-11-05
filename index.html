@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sewage Complaint System Demo - Government of India</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- WhatsApp Panel -->
+        <div class="panel whatsapp-panel">
+            <div class="whatsapp-header">
+                <div class="header-content">
+                    <div class="back-arrow">←</div>
+                    <div class="profile-pic">🏛️</div>
+                    <div class="header-info">
+                        <div class="contact-name">Mayiladuthurai Municipal Corporation</div>
+                        <div class="contact-status">Government Service</div>
+                    </div>
+                </div>
+            </div>
+            <div class="whatsapp-chat" id="whatsapp-chat">
+                <div class="date-divider">
+                    <span>Today</span>
+                </div>
+            </div>
+            <div class="whatsapp-input">
+                <button class="action-btn" id="send-complaint">📸 Send Complaint Photo + Location</button>
+            </div>
+        </div>
+
+        <!-- Admin Portal Panel -->
+        <div class="panel admin-panel">
+            <div class="admin-header">
+                <div class="header-logo">
+                    <div class="emblem">🇮🇳</div>
+                    <div class="header-text">
+                        <h1>Mayiladuthurai Municipal Corporation</h1>
+                        <p>Citizen Complaint Management System</p>
+                    </div>
+                </div>
+                <div class="admin-user">
+                    <span>Admin Portal</span>
+                </div>
+            </div>
+            <div class="admin-content">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-complaints">0</div>
+                        <div class="stat-label">Total Complaints</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pending-complaints">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="processing-complaints">0</div>
+                        <div class="stat-label">In Process</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="completed-complaints">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+
+                <div class="complaints-section">
+                    <h2>Complaint Registry</h2>
+                    <div class="complaints-table">
+                        <div class="table-header">
+                            <div class="col-id">ID</div>
+                            <div class="col-location">Location</div>
+                            <div class="col-type">Type</div>
+                            <div class="col-status">Status</div>
+                            <div class="col-assigned">Assigned To</div>
+                            <div class="col-action">Action</div>
+                        </div>
+                        <div class="table-body" id="complaints-list">
+                            <div class="no-complaints">No complaints registered yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions Overlay -->
+    <div class="instructions-overlay" id="instructions">
+        <div class="instructions-content">
+            <h2>🚀 Sewage Complaint System Demo</h2>
+            <p>This is an interactive click-through prototype demonstrating the complaint management workflow.</p>
+            <h3>How to use:</h3>
+            <ol>
+                <li><strong>Submit Complaint:</strong> Click the "Send Complaint Photo + Location" button in the WhatsApp panel</li>
+                <li><strong>View in Portal:</strong> Watch the complaint appear in the admin portal</li>
+                <li><strong>Assign Complaint:</strong> Click "Assign" to assign the complaint to an officer</li>
+                <li><strong>Complete Work:</strong> Click "Mark Complete" after assignment</li>
+                <li><strong>User Notification:</strong> User receives resolution confirmation via WhatsApp</li>
+            </ol>
+            <button class="start-btn" onclick="closeInstructions()">Start Demo</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
