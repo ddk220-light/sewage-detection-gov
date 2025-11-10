@@ -38,11 +38,65 @@ const TEST_DATA_SAMPLES = [
     }
 ];
 
+// Translations for multi-language support
+const TRANSLATIONS = {
+    en: {
+        title: "Mayiladuthurai Municipal Corporation",
+        subtitle: "Citizen Complaint Management System",
+        adminLogin: "Admin Login",
+        formTitle: "Submit a Sewage Complaint",
+        formDescription: "Report sewage issues in your area. We will track and resolve your complaint promptly.",
+        labelLocation: "Location *",
+        placeholderLocation: "Enter street address or area name",
+        labelDescription: "Description *",
+        placeholderDescription: "Describe the sewage issue...",
+        labelContact: "Contact Number *",
+        placeholderContact: "Your phone number",
+        labelPhoto: "Upload Photo of the Issue *",
+        uploadText: "Click to upload or drag and drop",
+        uploadHint: "JPG, PNG up to 10MB",
+        changeImage: "Change Image",
+        submitButton: "Submit Complaint",
+        successTitle: "Complaint Submitted Successfully!",
+        successMessage: "Your complaint has been registered with ID:",
+        successInfo: "We will track your complaint and notify you once it is resolved.",
+        okButton: "OK"
+    },
+    ta: {
+        title: "மயிலாடுதுறை நகராட்சி",
+        subtitle: "குடிமக்கள் புகார் மேலாண்மை அமைப்பு",
+        adminLogin: "நிர்வாகி உள்நுழைவு",
+        formTitle: "சாக்கடை புகார் சமர்ப்பிக்கவும்",
+        formDescription: "உங்கள் பகுதியில் உள்ள சாக்கடை பிரச்சனைகளை தெரிவிக்கவும். உங்கள் புகாரை நாங்கள் கண்காணித்து விரைவில் தீர்வு காண்போம்.",
+        labelLocation: "இடம் *",
+        placeholderLocation: "தெரு முகவரி அல்லது பகுதியின் பெயரை உள்ளிடவும்",
+        labelDescription: "விளக்கம் *",
+        placeholderDescription: "சாக்கடை பிரச்சனையை விவரிக்கவும்...",
+        labelContact: "தொடர்பு எண் *",
+        placeholderContact: "உங்கள் தொலைபேசி எண்",
+        labelPhoto: "பிரச்சனையின் புகைப்படத்தை பதிவேற்றவும் *",
+        uploadText: "பதிவேற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்",
+        uploadHint: "JPG, PNG 10MB வரை",
+        changeImage: "படத்தை மாற்றவும்",
+        submitButton: "புகார் சமர்ப்பிக்கவும்",
+        successTitle: "புகார் வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!",
+        successMessage: "உங்கள் புகார் பதிவு செய்யப்பட்டது. அடையாள எண்:",
+        successInfo: "உங்கள் புகாரை நாங்கள் கண்காணித்து தீர்வு கிடைத்தவுடன் உங்களுக்கு தெரிவிப்போம்.",
+        okButton: "சரி"
+    }
+};
+
+// Current language state
+let currentLanguage = localStorage.getItem('language') || 'en';
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     loadComplaintsFromStorage();
     setupEventListeners();
     setupDeveloperTools();
+
+    // Apply saved language preference
+    applyLanguage(currentLanguage);
 
     // Check if admin is logged in
     const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
@@ -642,4 +696,51 @@ function showNotification(message) {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+// ============ MULTI-LANGUAGE SUPPORT ============
+
+function toggleLanguage() {
+    // Switch between English and Tamil
+    currentLanguage = currentLanguage === 'en' ? 'ta' : 'en';
+
+    // Save preference
+    localStorage.setItem('language', currentLanguage);
+
+    // Apply the new language
+    applyLanguage(currentLanguage);
+}
+
+function applyLanguage(lang) {
+    const translations = TRANSLATIONS[lang];
+
+    if (!translations) {
+        console.error('Language not found:', lang);
+        return;
+    }
+
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[key]) {
+            element.textContent = translations[key];
+        }
+    });
+
+    // Update all elements with data-i18n-placeholder attribute (for input placeholders)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (translations[key]) {
+            element.placeholder = translations[key];
+        }
+    });
+
+    // Update the language toggle button text to show the other language
+    const toggleButton = document.getElementById('language-toggle');
+    if (toggleButton) {
+        toggleButton.textContent = lang === 'en' ? 'தமிழ்' : 'English';
+    }
+
+    // Update HTML lang attribute
+    document.documentElement.lang = lang;
 }

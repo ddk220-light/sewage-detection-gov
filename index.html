@@ -13,48 +13,51 @@
             <div class="header-logo">
                 <div class="emblem">🇮🇳</div>
                 <div class="header-text">
-                    <h1>Mayiladuthurai Municipal Corporation</h1>
-                    <p>Citizen Complaint Management System</p>
+                    <h1 data-i18n="title">Mayiladuthurai Municipal Corporation</h1>
+                    <p data-i18n="subtitle">Citizen Complaint Management System</p>
                 </div>
             </div>
-            <button class="admin-link-btn" onclick="showAdminLogin()">Admin Login</button>
+            <div class="header-actions">
+                <button id="language-toggle" class="language-toggle-btn" onclick="toggleLanguage()">தமிழ்</button>
+                <button class="admin-link-btn" onclick="showAdminLogin()" data-i18n="adminLogin">Admin Login</button>
+            </div>
         </div>
         <div class="public-content">
             <div class="complaint-form-container">
-                <h2>Submit a Sewage Complaint</h2>
-                <p class="form-description">Report sewage issues in your area. We will track and resolve your complaint promptly.</p>
+                <h2 data-i18n="formTitle">Submit a Sewage Complaint</h2>
+                <p class="form-description" data-i18n="formDescription">Report sewage issues in your area. We will track and resolve your complaint promptly.</p>
 
                 <form id="complaint-form">
                     <div class="form-group">
-                        <label for="complaint-location">Location *</label>
-                        <input type="text" id="complaint-location" placeholder="Enter street address or area name" required>
+                        <label for="complaint-location" data-i18n="labelLocation">Location *</label>
+                        <input type="text" id="complaint-location" data-i18n-placeholder="placeholderLocation" placeholder="Enter street address or area name" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="complaint-description">Description *</label>
-                        <textarea id="complaint-description" rows="4" placeholder="Describe the sewage issue..." required></textarea>
+                        <label for="complaint-description" data-i18n="labelDescription">Description *</label>
+                        <textarea id="complaint-description" rows="4" data-i18n-placeholder="placeholderDescription" placeholder="Describe the sewage issue..." required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="complaint-contact">Contact Number *</label>
-                        <input type="tel" id="complaint-contact" placeholder="Your phone number" required>
+                        <label for="complaint-contact" data-i18n="labelContact">Contact Number *</label>
+                        <input type="tel" id="complaint-contact" data-i18n-placeholder="placeholderContact" placeholder="Your phone number" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Upload Photo of the Issue *</label>
+                        <label data-i18n="labelPhoto">Upload Photo of the Issue *</label>
                         <div class="upload-box" id="public-upload-box">
                             <div class="upload-icon">📷</div>
-                            <p>Click to upload or drag and drop</p>
-                            <p class="upload-hint">JPG, PNG up to 10MB</p>
+                            <p data-i18n="uploadText">Click to upload or drag and drop</p>
+                            <p class="upload-hint" data-i18n="uploadHint">JPG, PNG up to 10MB</p>
                             <input type="file" id="public-image-upload" accept="image/*" style="display: none;" required>
                         </div>
                         <div class="image-preview-box" id="public-image-preview" style="display: none;">
                             <img id="public-preview-img" src="" alt="Preview">
-                            <button type="button" class="btn-change-image" onclick="changePublicImage()">Change Image</button>
+                            <button type="button" class="btn-change-image" onclick="changePublicImage()" data-i18n="changeImage">Change Image</button>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit-complaint">Submit Complaint</button>
+                    <button type="submit" class="btn-submit-complaint" data-i18n="submitButton">Submit Complaint</button>
                 </form>
             </div>
         </div>
@@ -147,10 +150,10 @@
     <div class="modal-overlay" id="success-modal">
         <div class="modal-content success-modal-content">
             <div class="success-icon">✓</div>
-            <h2>Complaint Submitted Successfully!</h2>
-            <p>Your complaint has been registered with ID: <strong id="complaint-id-display"></strong></p>
-            <p>We will track your complaint and notify you once it is resolved.</p>
-            <button class="btn-ok" onclick="closeSuccessModal()">OK</button>
+            <h2 data-i18n="successTitle">Complaint Submitted Successfully!</h2>
+            <p><span data-i18n="successMessage">Your complaint has been registered with ID:</span> <strong id="complaint-id-display"></strong></p>
+            <p data-i18n="successInfo">We will track your complaint and notify you once it is resolved.</p>
+            <button class="btn-ok" onclick="closeSuccessModal()" data-i18n="okButton">OK</button>
         </div>
     </div>
 

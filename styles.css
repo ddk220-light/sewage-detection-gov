@@ -50,6 +50,30 @@ body {
     opacity: 0.9;
 }
 
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.language-toggle-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.language-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+}
+
 .admin-link-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -943,10 +967,15 @@ body {
         font-size: 11px;
     }
 
+    .language-toggle-btn,
     .admin-link-btn,
     .btn-logout {
         padding: 6px 12px;
         font-size: 12px;
+    }
+
+    .header-actions {
+        gap: 6px;
     }
 
     .complaint-form-container {
