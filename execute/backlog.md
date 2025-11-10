@@ -7,7 +7,7 @@ This document contains a running list of prioritized ideas and feature requests.
 ---
 
 ### 1. Multi-language Support (English/Tamil)
-*   **Status:** `[Tracked]`
+*   **Status:** `[Completed]`
 *   **Description:** Implement a language switcher (e.g., a toggle button in the header) on the public-facing pages. This feature will allow users to dynamically change the language of all UI text, labels, and buttons between English and Tamil. This involves creating a translation mapping for all text elements and loading the appropriate language based on user selection.
 *   **Primary Persona:** Citizen
 

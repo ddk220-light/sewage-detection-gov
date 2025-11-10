@@ -59,6 +59,8 @@ This section contains high-level goals and acceptance criteria for the remaining
 ---
 ### 2. Multi-language Support (English/Tamil)
 
+**Status:** Completed
+
 *   **Goal:** Allow users to toggle the language of the public-facing UI between English and Tamil.
 *   **Acceptance Criteria:**
     *   A language toggle button is visible in the header of the public view.
