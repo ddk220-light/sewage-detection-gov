@@ -1,17 +1,11 @@
 // Application State
 let state = {
     complaints: [],
-    complaintCounter: 1000,
     currentAssignmentIndex: null,
     currentCompletionIndex: null,
     selectedCompletionImage: null,
-    isAdminLoggedIn: false
-};
-
-// Admin credentials (in production, this should be server-side)
-const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin123'
+    isAdminLoggedIn: false,
+    isLoading: false
 };
 
 // Test data for quick seeding (developer tool)
@@ -86,12 +80,11 @@ const TRANSLATIONS = {
     }
 };
 
-// Current language state
+// Current language state (kept in localStorage for UI preference)
 let currentLanguage = localStorage.getItem('language') || 'en';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-    loadComplaintsFromStorage();
     setupEventListeners();
     setupDeveloperTools();
 
@@ -106,24 +99,103 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ============ DATA PERSISTENCE ============
+// ============ API FUNCTIONS ============
 
-function saveComplaintsToStorage() {
-    localStorage.setItem('complaints', JSON.stringify(state.complaints));
-    localStorage.setItem('complaintCounter', state.complaintCounter.toString());
+/**
+ * Admin login via API
+ */
+async function loginAdmin(username, password) {
+    const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+    }
+
+    return data;
 }
 
-function loadComplaintsFromStorage() {
-    const savedComplaints = localStorage.getItem('complaints');
-    const savedCounter = localStorage.getItem('complaintCounter');
+/**
+ * Fetch all complaints from API
+ */
+async function fetchComplaints() {
+    const response = await fetch('/api/complaints', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 
-    if (savedComplaints) {
-        state.complaints = JSON.parse(savedComplaints);
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch complaints');
     }
 
-    if (savedCounter) {
-        state.complaintCounter = parseInt(savedCounter);
+    return data.complaints || [];
+}
+
+/**
+ * Create a new complaint via API
+ */
+async function createComplaint(location, description, contact, imageFile) {
+    const formData = new FormData();
+    formData.append('location', location);
+    formData.append('description', description);
+    formData.append('contact', contact);
+    formData.append('image', imageFile);
+
+    const response = await fetch('/api/complaints', {
+        method: 'POST',
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to create complaint');
     }
+
+    return data.complaint;
+}
+
+/**
+ * Update a complaint via API
+ */
+async function updateComplaint(id, updateData) {
+    const formData = new FormData();
+
+    if (updateData.status) {
+        formData.append('status', updateData.status);
+    }
+
+    if (updateData.assignedTo) {
+        formData.append('assigned_to', updateData.assignedTo);
+    }
+
+    if (updateData.afterImage) {
+        formData.append('after_image', updateData.afterImage);
+    }
+
+    const response = await fetch(`/api/complaints/${id}`, {
+        method: 'PUT',
+        body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to update complaint');
+    }
+
+    return data.complaint;
 }
 
 // ============ VIEW NAVIGATION ============
@@ -140,11 +212,13 @@ function showAdminLogin() {
     document.getElementById('admin-dashboard-view').style.display = 'none';
 }
 
-function showAdminDashboard() {
+async function showAdminDashboard() {
     document.getElementById('public-view').style.display = 'none';
     document.getElementById('admin-login-view').style.display = 'none';
     document.getElementById('admin-dashboard-view').style.display = 'block';
 
+    // Load complaints from server
+    await loadComplaintsFromServer();
     updateAdminStats();
     renderComplaintsTable();
 }
@@ -156,6 +230,35 @@ function logout() {
 
     // Clear login form
     document.getElementById('admin-login-form').reset();
+}
+
+// ============ DATA LOADING ============
+
+async function loadComplaintsFromServer() {
+    try {
+        showLoadingState('Loading complaints...');
+        state.complaints = await fetchComplaints();
+
+        // Convert database field names to camelCase for frontend consistency
+        state.complaints = state.complaints.map(c => ({
+            id: c.id,
+            location: c.location,
+            description: c.description,
+            contact: c.contact,
+            status: c.status,
+            assignedTo: c.assigned_to,
+            beforeImage: c.before_image_url,
+            afterImage: c.after_image_url,
+            submittedAt: c.submitted_at,
+            completedAt: c.completed_at
+        }));
+
+        hideLoadingState();
+    } catch (error) {
+        hideLoadingState();
+        showError('Failed to load complaints: ' + error.message);
+        console.error('Error loading complaints:', error);
+    }
 }
 
 // ============ EVENT LISTENERS ============
@@ -245,63 +348,62 @@ function handleImageFile(file, type) {
     const reader = new FileReader();
     reader.onload = (event) => {
         if (type === 'public') {
-            showPublicImagePreview(event.target.result);
+            showPublicImagePreview(event.target.result, file);
         } else if (type === 'completion') {
-            showCompletionImagePreview(event.target.result);
+            showCompletionImagePreview(event.target.result, file);
         }
     };
     reader.readAsDataURL(file);
 }
 
-function showPublicImagePreview(imageSrc) {
+function showPublicImagePreview(imageSrc, file) {
     document.getElementById('public-upload-box').style.display = 'none';
     document.getElementById('public-image-preview').style.display = 'block';
     document.getElementById('public-preview-img').src = imageSrc;
+    // Store the actual file object for later upload
+    document.getElementById('public-preview-img').dataset.file = '';
+    document.getElementById('public-image-upload').dataset.currentFile = file;
 }
 
 function changePublicImage() {
     document.getElementById('public-image-upload').click();
 }
 
-function handleComplaintSubmit(e) {
+async function handleComplaintSubmit(e) {
     e.preventDefault();
 
     const location = document.getElementById('complaint-location').value;
     const description = document.getElementById('complaint-description').value;
     const contact = document.getElementById('complaint-contact').value;
-    const image = document.getElementById('public-preview-img').src;
+    const imageInput = document.getElementById('public-image-upload');
+    const imageFile = imageInput.files[0];
 
-    if (!image) {
-        alert('Please upload a photo of the issue');
+    if (!imageFile) {
+        showError('Please upload a photo of the issue');
         return;
     }
 
-    // Create complaint
-    const complaint = {
-        id: state.complaintCounter++,
-        location: location,
-        description: description,
-        contact: contact,
-        status: 'pending',
-        assignedTo: null,
-        beforeImage: image,
-        afterImage: null,
-        submittedAt: new Date().toISOString(),
-        completedAt: null
-    };
+    try {
+        showLoadingState('Submitting complaint...');
 
-    state.complaints.push(complaint);
-    saveComplaintsToStorage();
+        const complaint = await createComplaint(location, description, contact, imageFile);
 
-    // Show success modal
-    document.getElementById('complaint-id-display').textContent = '#' + complaint.id;
-    document.getElementById('success-modal').classList.add('active');
+        hideLoadingState();
 
-    // Reset form
-    document.getElementById('complaint-form').reset();
-    document.getElementById('public-upload-box').style.display = 'block';
-    document.getElementById('public-image-preview').style.display = 'none';
-    document.getElementById('public-preview-img').src = '';
+        // Show success modal
+        document.getElementById('complaint-id-display').textContent = '#' + complaint.id;
+        document.getElementById('success-modal').classList.add('active');
+
+        // Reset form
+        document.getElementById('complaint-form').reset();
+        document.getElementById('public-upload-box').style.display = 'block';
+        document.getElementById('public-image-preview').style.display = 'none';
+        document.getElementById('public-preview-img').src = '';
+    } catch (error) {
+        hideLoadingState();
+        showError('Failed to submit complaint: ' + error.message);
+        console.error('Error submitting complaint:', error);
+    }
 }
 
 function closeSuccessModal() {
@@ -310,18 +412,26 @@ function closeSuccessModal() {
 
 // ============ ADMIN AUTHENTICATION ============
 
-function handleAdminLogin(e) {
+async function handleAdminLogin(e) {
     e.preventDefault();
 
     const username = document.getElementById('admin-username').value;
     const password = document.getElementById('admin-password').value;
 
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    try {
+        showLoadingState('Logging in...');
+
+        await loginAdmin(username, password);
+
         state.isAdminLoggedIn = true;
         sessionStorage.setItem('adminLoggedIn', 'true');
+
+        hideLoadingState();
         showAdminDashboard();
-    } else {
-        alert('Invalid credentials. Please try again.');
+    } catch (error) {
+        hideLoadingState();
+        showError('Login failed: ' + error.message);
+        console.error('Login error:', error);
     }
 }
 
@@ -410,26 +520,40 @@ function closeAssignModal() {
     state.currentAssignmentIndex = null;
 }
 
-function confirmAssignment() {
+async function confirmAssignment() {
     const officer = document.getElementById('officer-select').value;
 
     if (!officer) {
-        alert('Please select an officer');
+        showError('Please select an officer');
         return;
     }
 
     if (state.currentAssignmentIndex === null) return;
 
     const complaint = state.complaints[state.currentAssignmentIndex];
-    complaint.status = 'processing';
-    complaint.assignedTo = officer;
 
-    saveComplaintsToStorage();
-    updateAdminStats();
-    renderComplaintsTable();
-    closeAssignModal();
+    try {
+        showLoadingState('Assigning complaint...');
 
-    showNotification('Complaint #' + complaint.id + ' assigned to ' + officer);
+        await updateComplaint(complaint.id, {
+            status: 'processing',
+            assignedTo: officer
+        });
+
+        // Reload complaints to get updated data
+        await loadComplaintsFromServer();
+
+        hideLoadingState();
+        updateAdminStats();
+        renderComplaintsTable();
+        closeAssignModal();
+
+        showNotification('Complaint #' + complaint.id + ' assigned to ' + officer);
+    } catch (error) {
+        hideLoadingState();
+        showError('Failed to assign complaint: ' + error.message);
+        console.error('Assignment error:', error);
+    }
 }
 
 // ============ COMPLAINT COMPLETION ============
@@ -459,14 +583,14 @@ function handleCompletionImageUpload(e) {
     if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (event) => {
-            showCompletionImagePreview(event.target.result);
+            showCompletionImagePreview(event.target.result, file);
         };
         reader.readAsDataURL(file);
     }
 }
 
-function showCompletionImagePreview(imageSrc) {
-    state.selectedCompletionImage = imageSrc;
+function showCompletionImagePreview(imageSrc, file) {
+    state.selectedCompletionImage = file; // Store the file object
     document.getElementById('upload-area').style.display = 'none';
     document.getElementById('completion-image-preview').style.display = 'block';
     document.getElementById('completion-preview-img').src = imageSrc;
@@ -477,22 +601,35 @@ function changeCompletionImage() {
     document.getElementById('completion-image-upload').click();
 }
 
-function submitCompletion() {
+async function submitCompletion() {
     if (state.currentCompletionIndex === null || !state.selectedCompletionImage) {
         return;
     }
 
     const complaint = state.complaints[state.currentCompletionIndex];
-    complaint.status = 'completed';
-    complaint.afterImage = state.selectedCompletionImage;
-    complaint.completedAt = new Date().toISOString();
 
-    saveComplaintsToStorage();
-    updateAdminStats();
-    renderComplaintsTable();
-    closeCompletionModal();
+    try {
+        showLoadingState('Marking complaint as complete...');
 
-    showNotification('Complaint #' + complaint.id + ' marked as completed');
+        await updateComplaint(complaint.id, {
+            status: 'completed',
+            afterImage: state.selectedCompletionImage
+        });
+
+        // Reload complaints to get updated data
+        await loadComplaintsFromServer();
+
+        hideLoadingState();
+        updateAdminStats();
+        renderComplaintsTable();
+        closeCompletionModal();
+
+        showNotification('Complaint #' + complaint.id + ' marked as completed');
+    } catch (error) {
+        hideLoadingState();
+        showError('Failed to complete complaint: ' + error.message);
+        console.error('Completion error:', error);
+    }
 }
 
 // ============ VIEW COMPLAINT DETAILS ============
@@ -698,13 +835,27 @@ function showNotification(message) {
     }, 3000);
 }
 
+function showError(message) {
+    alert(message);
+}
+
+function showLoadingState(message = 'Loading...') {
+    state.isLoading = true;
+    // You can add a loading spinner overlay here if desired
+    console.log(message);
+}
+
+function hideLoadingState() {
+    state.isLoading = false;
+}
+
 // ============ MULTI-LANGUAGE SUPPORT ============
 
 function toggleLanguage() {
     // Switch between English and Tamil
     currentLanguage = currentLanguage === 'en' ? 'ta' : 'en';
 
-    // Save preference
+    // Save preference (UI preference, not data)
     localStorage.setItem('language', currentLanguage);
 
     // Apply the new language

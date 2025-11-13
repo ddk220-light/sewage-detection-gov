@@ -1,0 +1,17 @@
+name = "sewage-detection-gov"
+compatibility_date = "2024-01-01"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "complaints_db"
+database_id = "af879244-afaa-4fb0-afa9-3e4b39cda40f"
+
+# R2 Bucket Binding
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "gov-complaint-images"
+
+# Environment variables
+[vars]
+R2_PUBLIC_URL = "https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev"

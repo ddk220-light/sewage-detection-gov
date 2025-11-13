@@ -28,7 +28,7 @@ This document provides a high-level overview of the project's major milestones a
 
 | Milestone | Description | Associated Epic(s) / Items | Status | Target Date |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 1: Prototype Stage** | Validate core functionality and add key features for testing and production readiness. | [EPIC-001](./epics/EPIC-001-core-complaint-system.md) <br/> - Quick Test Data Seeding <br/> - Multi-language Support <br/> - Dev Documentation Portal <br/> - Production Backend | **In Progress** | 2025-12-15 |
+| **Phase 1: Prototype Stage** | Validate core functionality and add key features for testing and production readiness. | [EPIC-001](./epics/EPIC-001-core-complaint-system.md) <br/> - Quick Test Data Seeding <br/> - Multi-language Support <br/> - Dev Documentation Portal <br/> - Production Backend | **Completed** | 2025-12-15 |
 | **Phase 2: MVP Private Beta** | Launch a stable, end-to-end system to a limited group of real users. Achieve 50 real complaints. | TBD | Not Started | 2025-12-31 |
 | **Phase 3: Public Launch** | Roll out the system to the general public, starting with a few city wards. | TBD | Not Started | Q1 2026 |
 
@@ -84,6 +84,8 @@ This section contains high-level goals and acceptance criteria for the remaining
 ---
 ### 4. Production-Ready Backend Infrastructure (Hardest)
 
+**Status:** Completed
+
 *   **User Prerequisite:** `[Completed]` The user has provided the necessary Cloudflare D1, R2, and secret credentials.
 *   **Reference:** All required keys, IDs, and bindings can be found in `docs/cloudflare_details.txt`.
 *   **Goal:** Decommission the `localStorage`-based prototype and implement a fully functional, serverless backend on Cloudflare.
@@ -98,3 +100,16 @@ This section contains high-level goals and acceptance criteria for the remaining
     *   Inside the router, handle different routes (`/api/login`, `/api/complaints`) and HTTP methods (`GET`, `POST`, `PUT`).
     *   Access Cloudflare bindings and environment variables (e.g., `env.DB`, `env.R2_BUCKET`, `env.ADMIN_PASSWORD`) from the function's `context` parameter.
     *   Systematically refactor `script.js`, replacing all local data functions with asynchronous `fetch` calls to your new API endpoints. Ensure the UI correctly handles the loading and error states of these network requests.
+*   **Implementation Details:**
+    *   Created `wrangler.toml` with D1 database and R2 bucket bindings
+    *   Created `schema.sql` with complaints table schema
+    *   Implemented universal API router at `functions/api/[[path]].js` with the following endpoints:
+        *   `POST /api/login` - Admin authentication using environment variables
+        *   `GET /api/complaints` - Fetch all complaints from D1
+        *   `POST /api/complaints` - Create new complaint with image upload to R2
+        *   `PUT /api/complaints/:id` - Update complaint (assign officer, mark complete with after image)
+    *   Completely refactored `script.js` to remove all localStorage logic
+    *   Implemented fetch-based API functions: `loginAdmin()`, `fetchComplaints()`, `createComplaint()`, `updateComplaint()`
+    *   Added loading states and error handling throughout the UI
+    *   Images are now stored in R2 bucket with public URLs saved in D1
+    *   All admin operations (assignment, completion) now update the D1 database
