@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Diagnostic Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 4px;
+            border-left: 4px solid #2563eb;
+        }
+        .error {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+        .success {
+            border-left-color: #16a34a;
+            background: #f0fdf4;
+        }
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .complaint-card {
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .image-test {
+            margin-top: 10px;
+        }
+        .image-test img {
+            max-width: 300px;
+            border: 2px solid #e5e7eb;
+            border-radius: 4px;
+        }
+        .field-check {
+            margin: 5px 0;
+            padding: 5px;
+            font-family: monospace;
+        }
+        .field-present {
+            color: #16a34a;
+        }
+        .field-missing {
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Database Diagnostic Tool</h1>
+        <p>This tool checks if complaints have the correct photo field names and if images are accessible.</p>
+
+        <button onclick="runDiagnostic()">Run Diagnostic Check</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function runDiagnostic() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="result">Running diagnostic checks...</div>';
+
+            try {
+                // 1. Check API health
+                resultsDiv.innerHTML += '<h2>1. Checking API Health</h2>';
+                const healthResponse = await fetch('/api/health');
+                const healthData = await healthResponse.json();
+
+                resultsDiv.innerHTML += `<div class="result ${healthResponse.ok ? 'success' : 'error'}">
+                    <strong>Health Check:</strong>
+                    <pre>${JSON.stringify(healthData, null, 2)}</pre>
+                </div>`;
+
+                // 2. Fetch complaints
+                resultsDiv.innerHTML += '<h2>2. Fetching Complaints</h2>';
+                const complaintsResponse = await fetch('/api/complaints');
+                const complaintsData = await complaintsResponse.json();
+
+                if (!complaintsResponse.ok) {
+                    resultsDiv.innerHTML += `<div class="result error">
+                        <strong>Error fetching complaints:</strong>
+                        <pre>${JSON.stringify(complaintsData, null, 2)}</pre>
+                    </div>`;
+                    return;
+                }
+
+                const complaints = complaintsData.complaints || [];
+                resultsDiv.innerHTML += `<div class="result success">
+                    <strong>Found ${complaints.length} complaints</strong>
+                </div>`;
+
+                if (complaints.length === 0) {
+                    resultsDiv.innerHTML += `<div class="result">
+                        <strong>No complaints in database</strong>
+                        <p>Try creating a complaint first using the main form.</p>
+                    </div>`;
+                    return;
+                }
+
+                // 3. Check each complaint for photo fields
+                resultsDiv.innerHTML += '<h2>3. Checking Photo Fields</h2>';
+
+                complaints.forEach((complaint, index) => {
+                    const hasBeforeImage = complaint.hasOwnProperty('before_image_url');
+                    const hasAfterImage = complaint.hasOwnProperty('after_image_url');
+                    const beforeImageValue = complaint.before_image_url;
+                    const afterImageValue = complaint.after_image_url;
+
+                    // Check for alternative field names (in case of mismatch)
+                    const altFields = {
+                        beforeImage: complaint.hasOwnProperty('beforeImage'),
+                        afterImage: complaint.hasOwnProperty('afterImage'),
+                        before_image: complaint.hasOwnProperty('before_image'),
+                        after_image: complaint.hasOwnProperty('after_image'),
+                        beforePhoto: complaint.hasOwnProperty('beforePhoto'),
+                        afterPhoto: complaint.hasOwnProperty('afterPhoto'),
+                    };
+
+                    let cardHTML = `<div class="complaint-card">
+                        <h3>Complaint #${complaint.id}</h3>
+                        <div class="field-check ${hasBeforeImage ? 'field-present' : 'field-missing'}">
+                            ✓ before_image_url: ${hasBeforeImage ? '✅ EXISTS' : '❌ MISSING'}
+                        </div>
+                        ${hasBeforeImage ? `<div>Value: <code>${beforeImageValue || 'NULL'}</code></div>` : ''}
+
+                        <div class="field-check ${hasAfterImage ? 'field-present' : 'field-missing'}">
+                            ✓ after_image_url: ${hasAfterImage ? '✅ EXISTS' : '❌ MISSING'}
+                        </div>
+                        ${hasAfterImage && afterImageValue ? `<div>Value: <code>${afterImageValue}</code></div>` : ''}
+
+                        <h4>All fields present in this complaint:</h4>
+                        <pre>${JSON.stringify(Object.keys(complaint), null, 2)}</pre>
+
+                        <h4>Alternative field names check:</h4>
+                        <pre>${JSON.stringify(altFields, null, 2)}</pre>
+                    `;
+
+                    // Try to load images
+                    if (hasBeforeImage && beforeImageValue) {
+                        cardHTML += `
+                            <div class="image-test">
+                                <h4>Before Image Test:</h4>
+                                <p>Attempting to load: <code>${beforeImageValue}</code></p>
+                                <img src="${beforeImageValue}"
+                                     alt="Before Photo"
+                                     onerror="this.style.border='2px solid red'; this.alt='❌ FAILED TO LOAD'"
+                                     onload="this.style.border='2px solid green'">
+                            </div>
+                        `;
+                    }
+
+                    if (hasAfterImage && afterImageValue) {
+                        cardHTML += `
+                            <div class="image-test">
+                                <h4>After Image Test:</h4>
+                                <p>Attempting to load: <code>${afterImageValue}</code></p>
+                                <img src="${afterImageValue}"
+                                     alt="After Photo"
+                                     onerror="this.style.border='2px solid red'; this.alt='❌ FAILED TO LOAD'"
+                                     onload="this.style.border='2px solid green'">
+                            </div>
+                        `;
+                    }
+
+                    cardHTML += `</div>`;
+                    resultsDiv.innerHTML += cardHTML;
+                });
+
+                // 4. Summary
+                resultsDiv.innerHTML += '<h2>4. Summary</h2>';
+                const complaintsWithBefore = complaints.filter(c => c.before_image_url).length;
+                const complaintsWithAfter = complaints.filter(c => c.after_image_url).length;
+
+                resultsDiv.innerHTML += `<div class="result">
+                    <strong>Summary:</strong>
+                    <ul>
+                        <li>Total complaints: ${complaints.length}</li>
+                        <li>Complaints with before_image_url: ${complaintsWithBefore}</li>
+                        <li>Complaints with after_image_url: ${complaintsWithAfter}</li>
+                    </ul>
+                    <p><strong>Expected field names:</strong> <code>before_image_url</code> and <code>after_image_url</code></p>
+                    <p>If the field names are different, the database schema needs to be updated.</p>
+                </div>`;
+
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="result error">
+                    <strong>Error running diagnostic:</strong>
+                    <pre>${error.message}\n${error.stack}</pre>
+                </div>`;
+            }
+        }
+    </script>
+</body>
+</html>
