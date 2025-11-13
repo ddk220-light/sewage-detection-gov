@@ -20,6 +20,7 @@ DEV_PASSWORD - password to login to dev portal
 This section is for configuring an R2 bucket to store the images uploaded by citizens and officers.
 
 ### 3.1. R2 Bucket Details
+R2 bucket name (binding to the page)= ImageStore
 R2_BUCKET_NAME = gov-complaint-images
 R2_PUBLIC_URL = https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev
 
@@ -36,6 +37,7 @@ S3 API - https://3351b12e263723112deb6aff81a309f7.r2.cloudflarestorage.com
 This section is for configuring a D1 database to store complaint data.
 
 ### 4.1. D1 Database Details
+D1 name (in binding) =  DB
 D1_DATABASE_NAME = complaints_db
 D1_DATABASE_ID = af879244-afaa-4fb0-afa9-3e4b39cda40f
 
