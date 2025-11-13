@@ -84,7 +84,8 @@ This section contains high-level goals and acceptance criteria for the remaining
 ---
 ### 4. Production-Ready Backend Infrastructure (Hardest)
 
-*   **ACTION REQUIRED FROM USER:** Before you begin, I (the user) must configure the Cloudflare environment (D1, R2, Secrets) as detailed in `docs/cloudflare_details.txt`. I will confirm when this is done.
+*   **User Prerequisite:** `[Completed]` The user has provided the necessary Cloudflare D1, R2, and secret credentials.
+*   **Reference:** All required keys, IDs, and bindings can be found in `docs/cloudflare_details.txt`.
 *   **Goal:** Decommission the `localStorage`-based prototype and implement a fully functional, serverless backend on Cloudflare.
 *   **Acceptance Criteria:**
     *   All `localStorage` logic is removed from `script.js`.

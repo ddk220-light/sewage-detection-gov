@@ -3,63 +3,15 @@
 
 This document contains the configuration details, credentials, and setup instructions for deploying and scaling the application on the Cloudflare platform.
 
-**WARNING:** This file contains placeholder credentials. In a real-world scenario, secret values should NEVER be committed to version control. They should be managed using Cloudflare's secret management tools.
-
----
-
-## 1. Cloudflare Pages (Static Site Deployment)
-
-This section covers the deployment of the frontend application (HTML, CSS, JS).
-
-### 1.1. Project Details
-*   **Cloudflare Project Name:** `sewage-detection-gov`
-*   **GitHub Repository:** `https://github.com/<your-username>/sewage-detection-gov`
-*   **Production URL:** `https://sewage-detection-gov.pages.dev`
-
-### 1.2. Build Configuration
-*   **Build Command:** (leave empty, as this is a static site with no build step)
-*   **Build Output Directory:** `/` (or the root of the repository)
-*   **Root Directory:** `/`
-
-### 1.3. Setup Instructions
-1.  **Log in** to your Cloudflare dashboard.
-2.  Navigate to **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
-3.  **Select** the project's GitHub repository.
-4.  In the "Set up builds and deployments" section, use the **Build Configuration** values from section 1.2.
-5.  Click **Save and Deploy**. Your site will be live at the `.pages.dev` URL provided.
-
----
-
 ## 2. Admin Credentials (Secrets Management)
 
 This section is for managing the admin login credentials securely. These will be used by a backend function (Cloudflare Worker) to authenticate the admin user.
 
 ### 2.1. Secret Variables
-*   **`ADMIN_USERNAME`**: The username for the admin portal.
-    *   **Placeholder Value:** `admin`
-*   **`ADMIN_PASSWORD`**: The password for the admin portal.
-    *   **Placeholder Value:** `admin123`
+ADMIN_USERNAME - user name to login to admin portal
+ADMIN_PASSWORD - password to login to admin portal
+DEV_PASSWORD - password to login to dev portal
 
-### 2.2. Setup Instructions
-These secrets must be added to the Pages project so the backend function can access them.
-
-*   **Website Method:**
-    1.  In the Cloudflare dashboard, go to your Pages project > **Settings** > **Environment variables**.
-    2.  Under **Encrypted environment variables**, click **Add variable**.
-    3.  Enter `ADMIN_USERNAME` as the variable name and its value. Click **Encrypt**.
-    4.  Repeat for `ADMIN_PASSWORD`.
-
-*   **Cloudflare CLI (Wrangler) Method:**
-    ```bash
-    # Make sure you are logged in with `npx wrangler login`
-    # Replace <your-project-name> with the name of your Pages project
-
-    npx wrangler secret put ADMIN_USERNAME --name <your-project-name>
-    # (You will be prompted to enter the secret value)
-
-    npx wrangler secret put ADMIN_PASSWORD --name <your-project-name>
-    # (You will be prompted to enter the secret value)
-    ```
 
 ---
 
@@ -68,46 +20,24 @@ These secrets must be added to the Pages project so the backend function can acc
 This section is for configuring an R2 bucket to store the images uploaded by citizens and officers.
 
 ### 3.1. R2 Bucket Details
-*   **`R2_BUCKET_NAME`**: The name of the R2 bucket.
-    *   **Placeholder Value:** `gov-complaint-images`
-*   **`R2_PUBLIC_URL`**: The public-access URL for the bucket.
-    *   **Placeholder Value:** `https://pub-xxxxxxxx.r2.dev`
+R2_BUCKET_NAME = gov-complaint-images
+R2_PUBLIC_URL = https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev
 
 ### 3.2. R2 API Credentials
-These keys allow a backend function to upload objects to the R2 bucket.
-*   **`R2_ACCOUNT_ID`**: Your Cloudflare account ID.
-    *   **Placeholder Value:** `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
-*   **`R2_ACCESS_KEY_ID`**: The access key ID for the R2 API token.
-    *   **Placeholder Value:** `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
-*   **`R2_SECRET_ACCESS_KEY`**: The secret access key for the R2 API token.
-    *   **Placeholder Value:** `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+R2_ACCOUNT_ID = 3351b12e263723112deb6aff81a309f7
+API TOKEN VALUE = xz4yEgKQpbPaNXRUvoKipEVBYa_4gY-Yxw2uwmOj
+R2_ACCESS_KEY_ID = 91a06a7c40c26436f88f33ebd024085d
+R2_SECRET_ACCESS_KEY = 912f901bb5fc0a5f9306408750d0d0ecef7056b925dab0fb1c32f1b734bbe227 
+S3 API - https://3351b12e263723112deb6aff81a309f7.r2.cloudflarestorage.com
 
-### 3.3. Setup Instructions
-1.  **Create Bucket:**
-    *   In the Cloudflare dashboard, go to **R2** > **Create bucket**.
-    *   Enter the bucket name (e.g., `gov-complaint-images`) and click **Create bucket**.
-2.  **Enable Public Access:**
-    *   Go to the new bucket's **Settings** tab.
-    *   Under "Public access", click **Allow Access**. This will provide the `R2_PUBLIC_URL`.
-3.  **Create API Token:**
-    *   Go to **R2** > **Manage R2 API Tokens** (on the right sidebar).
-    *   Click **Create API token**.
-    *   Give the token a name, grant it **"Object Read & Write"** permissions, and click **Create API token**.
-    *   **IMPORTANT:** Copy the `Account ID`, `Access Key ID`, and `Secret Access Key` immediately. The secret key will not be shown again.
-4.  **Add Credentials as Secrets:**
-    *   Follow the instructions in section 2.2 to add `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, and `R2_SECRET_ACCESS_KEY` as encrypted environment variables to your Pages project.
-
----
 
 ## 4. Cloudflare D1 (Database for Complaints)
 
 This section is for configuring a D1 database to store complaint data.
 
 ### 4.1. D1 Database Details
-*   **`D1_DATABASE_NAME`**: The name of the D1 database.
-    *   **Placeholder Value:** `complaints_db`
-*   **`D1_DATABASE_ID`**: The unique ID for the database.
-    *   **Placeholder Value:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+D1_DATABASE_NAME = complaints_db
+D1_DATABASE_ID = af879244-afaa-4fb0-afa9-3e4b39cda40f
 
 ### 4.2. D1 Table Schema
 This is the proposed schema for the main complaints table.
