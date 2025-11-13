@@ -29,7 +29,9 @@ export async function onRequest(context) {
     let response;
 
     // Route handling
-    if (path === 'login' && method === 'POST') {
+    if (path === 'health' && method === 'GET') {
+      response = await handleHealthCheck(request, env);
+    } else if (path === 'login' && method === 'POST') {
       response = await handleLogin(request, env);
     } else if (path === 'complaints' && method === 'GET') {
       response = await handleGetComplaints(request, env);
@@ -58,14 +60,69 @@ export async function onRequest(context) {
     });
   } catch (error) {
     console.error('API Error:', error);
+    console.error('Error stack:', error.stack);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', message: error.message }),
+      JSON.stringify({
+        error: 'Internal server error',
+        message: error.message,
+        stack: error.stack,
+        path: path,
+        method: method
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   }
+}
+
+/**
+ * Health check endpoint to verify configuration
+ */
+async function handleHealthCheck(request, env) {
+  const status = {
+    api: 'OK',
+    timestamp: new Date().toISOString(),
+    bindings: {
+      DB: env.DB ? 'configured' : 'missing',
+      R2_BUCKET: env.R2_BUCKET ? 'configured' : 'missing',
+    },
+    env_vars: {
+      ADMIN_USERNAME: env.ADMIN_USERNAME ? 'set' : 'missing',
+      ADMIN_PASSWORD: env.ADMIN_PASSWORD ? 'set' : 'missing',
+      R2_PUBLIC_URL: env.R2_PUBLIC_URL ? 'set' : 'missing',
+    }
+  };
+
+  // Test database connection if available
+  if (env.DB) {
+    try {
+      const result = await env.DB.prepare('SELECT 1 as test').first();
+      status.database = 'connected';
+
+      // Check if complaints table exists
+      const tableCheck = await env.DB.prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='complaints'"
+      ).first();
+      status.complaintsTable = tableCheck ? 'exists' : 'missing - run schema.sql';
+    } catch (error) {
+      status.database = `error: ${error.message}`;
+    }
+  }
+
+  const allOk = status.bindings.DB === 'configured' &&
+                status.bindings.R2_BUCKET === 'configured' &&
+                status.database === 'connected' &&
+                status.complaintsTable === 'exists';
+
+  return new Response(
+    JSON.stringify(status, null, 2),
+    {
+      status: allOk ? 200 : 500,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 }
 
 /**
@@ -116,6 +173,11 @@ async function handleLogin(request, env) {
  */
 async function handleGetComplaints(request, env) {
   try {
+    // Check if DB binding exists
+    if (!env.DB) {
+      throw new Error('D1 database binding (DB) not configured. Please add D1 binding in Cloudflare Pages settings.');
+    }
+
     const { results } = await env.DB.prepare(
       'SELECT * FROM complaints ORDER BY id DESC'
     ).all();
@@ -127,7 +189,11 @@ async function handleGetComplaints(request, env) {
   } catch (error) {
     console.error('Database error:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to fetch complaints', message: error.message }),
+      JSON.stringify({
+        error: 'Failed to fetch complaints',
+        message: error.message,
+        hint: 'Make sure the D1 database is initialized with schema.sql'
+      }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -141,6 +207,14 @@ async function handleGetComplaints(request, env) {
  */
 async function handleCreateComplaint(request, env) {
   try {
+    // Check bindings
+    if (!env.DB) {
+      throw new Error('D1 database binding (DB) not configured. Please add D1 binding in Cloudflare Pages settings.');
+    }
+    if (!env.R2_BUCKET) {
+      throw new Error('R2 bucket binding (R2_BUCKET) not configured. Please add R2 binding in Cloudflare Pages settings.');
+    }
+
     const formData = await request.formData();
 
     const location = formData.get('location');
@@ -165,6 +239,8 @@ async function handleCreateComplaint(request, env) {
     const fileExtension = imageFile.name.split('.').pop();
     const fileName = `before-${timestamp}-${randomStr}.${fileExtension}`;
 
+    console.log('Uploading image to R2:', fileName);
+
     // Upload image to R2
     await env.R2_BUCKET.put(fileName, imageFile.stream(), {
       httpMetadata: {
@@ -174,6 +250,9 @@ async function handleCreateComplaint(request, env) {
 
     // Construct public URL for the image
     const imageUrl = `${env.R2_PUBLIC_URL}/${fileName}`;
+
+    console.log('Image uploaded successfully:', imageUrl);
+    console.log('Inserting complaint into D1 database');
 
     // Insert complaint into D1 database
     const result = await env.DB.prepare(
@@ -190,6 +269,8 @@ async function handleCreateComplaint(request, env) {
       ).first();
     }
 
+    console.log('Complaint created successfully:', complaint);
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -203,8 +284,14 @@ async function handleCreateComplaint(request, env) {
     );
   } catch (error) {
     console.error('Create complaint error:', error);
+    console.error('Error stack:', error.stack);
     return new Response(
-      JSON.stringify({ error: 'Failed to create complaint', message: error.message }),
+      JSON.stringify({
+        error: 'Failed to create complaint',
+        message: error.message,
+        stack: error.stack,
+        hint: 'Check that D1 database is initialized and R2 bucket binding is configured'
+      }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
