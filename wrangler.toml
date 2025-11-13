@@ -9,7 +9,7 @@ database_id = "af879244-afaa-4fb0-afa9-3e4b39cda40f"
 
 # R2 Bucket Binding
 [[r2_buckets]]
-binding = "R2_BUCKET"
+binding = "ImageStore"
 bucket_name = "gov-complaint-images"
 
 # Environment variables

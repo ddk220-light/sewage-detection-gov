@@ -57,7 +57,7 @@ In Cloudflare Pages dashboard:
    - Variable name: `DB`
    - D1 database: `complaints_db`
 3. Add **R2 bucket binding**:
-   - Variable name: `R2_BUCKET`
+   - Variable name: `ImageStore`
    - R2 bucket: `gov-complaint-images`
 
 ## Step 5: Deploy
@@ -88,7 +88,7 @@ R2_PUBLIC_URL=https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev
 EOF
 
 # Run local development server with bindings
-npx wrangler pages dev . --d1 DB=complaints_db --r2 R2_BUCKET=gov-complaint-images
+npx wrangler pages dev . --d1 DB=complaints_db --r2 ImageStore=gov-complaint-images
 ```
 
 ## Troubleshooting

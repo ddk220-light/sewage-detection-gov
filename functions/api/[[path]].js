@@ -86,7 +86,7 @@ async function handleHealthCheck(request, env) {
     timestamp: new Date().toISOString(),
     bindings: {
       DB: env.DB ? 'configured' : 'missing',
-      R2_BUCKET: env.R2_BUCKET ? 'configured' : 'missing',
+      ImageStore: env.ImageStore ? 'configured' : 'missing',
     },
     env_vars: {
       ADMIN_USERNAME: env.ADMIN_USERNAME ? 'set' : 'missing',
@@ -112,7 +112,7 @@ async function handleHealthCheck(request, env) {
   }
 
   const allOk = status.bindings.DB === 'configured' &&
-                status.bindings.R2_BUCKET === 'configured' &&
+                status.bindings.ImageStore === 'configured' &&
                 status.database === 'connected' &&
                 status.complaintsTable === 'exists';
 
@@ -211,8 +211,8 @@ async function handleCreateComplaint(request, env) {
     if (!env.DB) {
       throw new Error('D1 database binding (DB) not configured. Please add D1 binding in Cloudflare Pages settings.');
     }
-    if (!env.R2_BUCKET) {
-      throw new Error('R2 bucket binding (R2_BUCKET) not configured. Please add R2 binding in Cloudflare Pages settings.');
+    if (!env.ImageStore) {
+      throw new Error('R2 bucket binding (ImageStore) not configured. Please add R2 binding in Cloudflare Pages settings.');
     }
 
     const formData = await request.formData();
@@ -242,7 +242,7 @@ async function handleCreateComplaint(request, env) {
     console.log('Uploading image to R2:', fileName);
 
     // Upload image to R2
-    await env.R2_BUCKET.put(fileName, imageFile.stream(), {
+    await env.ImageStore.put(fileName, imageFile.stream(), {
       httpMetadata: {
         contentType: imageFile.type,
       },
@@ -334,7 +334,7 @@ async function handleUpdateComplaint(request, env, id) {
       const fileName = `after-${timestamp}-${randomStr}.${fileExtension}`;
 
       // Upload to R2
-      await env.R2_BUCKET.put(fileName, afterImage.stream(), {
+      await env.ImageStore.put(fileName, afterImage.stream(), {
         httpMetadata: {
           contentType: afterImage.type,
         },
