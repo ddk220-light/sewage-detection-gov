@@ -127,7 +127,12 @@
             </div>
 
             <div class="complaints-section">
-                <h2>Complaint Registry</h2>
+                <div class="section-header">
+                    <h2>Complaint Registry</h2>
+                    <button class="btn-export" onclick="exportComplaintsToCSV()" title="Download all complaints as CSV">
+                        📥 Export to CSV
+                    </button>
+                </div>
                 <div class="complaints-table">
                     <div class="table-header">
                         <div class="col-id">ID</div>
@@ -224,6 +229,27 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeViewModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚠️ Delete Complaint</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-message">
+                    <p><strong>Warning:</strong> This complaint will be permanently deleted and cannot be recovered.</p>
+                    <p>Are you sure you want to proceed?</p>
+                    <div id="delete-complaint-info" class="delete-info"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-delete-confirm" onclick="confirmDelete()">Delete Permanently</button>
             </div>
         </div>
     </div>

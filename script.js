@@ -3,6 +3,7 @@ let state = {
     complaints: [],
     currentAssignmentIndex: null,
     currentCompletionIndex: null,
+    currentDeleteIndex: null,
     selectedCompletionImage: null,
     isAdminLoggedIn: false,
     isLoading: false
@@ -506,7 +507,8 @@ function renderComplaintsTable() {
             <div data-label="Status:"><span class="status-badge ${statusClass}">${statusText}</span></div>
             <div class="assigned-officer" data-label="Assigned To:">${complaint.assignedTo || '-'}</div>
             <div class="complaint-actions" data-label="Action:">
-                <button class="btn-view" onclick="viewComplaint(${actualIndex})" title="View Details">👁️</button>
+                <button class="btn-view" onclick="viewComplaint(${actualIndex})">View complaint</button>
+                <button class="btn-delete" onclick="openDeleteModal(${actualIndex})" title="Delete complaint">🗑️</button>
                 ${actionButton}
             </div>
         `;
@@ -637,6 +639,122 @@ async function submitCompletion() {
         hideLoadingState();
         showError('Failed to complete complaint: ' + error.message);
         console.error('Completion error:', error);
+    }
+}
+
+// ============ DELETE COMPLAINT ============
+
+function openDeleteModal(index) {
+    state.currentDeleteIndex = index;
+    const complaint = state.complaints[index];
+
+    // Show complaint info in modal
+    const infoDiv = document.getElementById('delete-complaint-info');
+    infoDiv.innerHTML = `
+        <p><strong>Complaint ID:</strong> #${complaint.id}</p>
+        <p><strong>Location:</strong> ${complaint.location}</p>
+        <p><strong>Description:</strong> ${complaint.description}</p>
+    `;
+
+    document.getElementById('delete-modal').classList.add('active');
+}
+
+function closeDeleteModal() {
+    document.getElementById('delete-modal').classList.remove('active');
+    state.currentDeleteIndex = null;
+}
+
+async function confirmDelete() {
+    if (state.currentDeleteIndex === null) return;
+
+    const complaint = state.complaints[state.currentDeleteIndex];
+
+    try {
+        showLoadingState('Deleting complaint...');
+
+        const response = await fetch(`/api/complaints/${complaint.id}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete complaint');
+        }
+
+        // Reload complaints to get updated data
+        await loadComplaintsFromServer();
+
+        hideLoadingState();
+        updateAdminStats();
+        renderComplaintsTable();
+        closeDeleteModal();
+
+        showNotification('Complaint #' + complaint.id + ' has been permanently deleted');
+    } catch (error) {
+        hideLoadingState();
+        showError('Failed to delete complaint: ' + error.message);
+        console.error('Delete error:', error);
+    }
+}
+
+// ============ CSV EXPORT ============
+
+function exportComplaintsToCSV() {
+    if (state.complaints.length === 0) {
+        showError('No complaints to export');
+        return;
+    }
+
+    try {
+        // CSV headers
+        const headers = [
+            'ID',
+            'Location',
+            'Description',
+            'Contact',
+            'Status',
+            'Assigned To',
+            'Before Photo URL',
+            'After Photo URL',
+            'Submitted At',
+            'Completed At'
+        ];
+
+        // Convert complaints to CSV rows
+        const rows = state.complaints.map(complaint => {
+            return [
+                complaint.id,
+                `"${complaint.location.replace(/"/g, '""')}"`, // Escape quotes in CSV
+                `"${complaint.description.replace(/"/g, '""')}"`,
+                complaint.contact || '',
+                complaint.status,
+                complaint.assignedTo || '',
+                complaint.beforeImage || '',
+                complaint.afterImage || '',
+                complaint.submittedAt || '',
+                complaint.completedAt || ''
+            ].join(',');
+        });
+
+        // Combine headers and rows
+        const csvContent = [headers.join(','), ...rows].join('\n');
+
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', `complaints_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showNotification(`Exported ${state.complaints.length} complaints to CSV`);
+    } catch (error) {
+        showError('Failed to export CSV: ' + error.message);
+        console.error('CSV export error:', error);
     }
 }
 

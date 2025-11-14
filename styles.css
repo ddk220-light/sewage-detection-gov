@@ -388,10 +388,40 @@ body {
     padding: 20px;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
 .complaints-section h2 {
     font-size: 18px;
-    margin-bottom: 20px;
+    margin: 0;
     color: #333;
+}
+
+.btn-export {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-export:hover {
+    background: #157347;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .complaints-table {
@@ -545,6 +575,29 @@ body {
 .completed-icon {
     color: #198754;
     font-size: 20px;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 4px;
+}
+
+.btn-delete:hover {
+    background: #bb2d3b;
+}
+
+.complaint-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 /* ============ MODALS ============ */
@@ -736,6 +789,54 @@ body {
 .btn-submit:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+.btn-delete-confirm {
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-delete-confirm:hover {
+    background: #bb2d3b;
+}
+
+.warning-message {
+    padding: 20px;
+    background: #fff3cd;
+    border: 1px solid #ffecb5;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.warning-message p {
+    margin: 8px 0;
+    color: #664d03;
+    line-height: 1.5;
+}
+
+.warning-message strong {
+    color: #cc0000;
+}
+
+.delete-info {
+    margin-top: 16px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.delete-info p {
+    margin: 8px 0;
+    color: #333;
+    font-size: 14px;
 }
 
 .officer-select {
@@ -1017,9 +1118,22 @@ body {
         padding: 12px;
     }
 
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 15px;
+    }
+
     .complaints-section h2 {
         font-size: 15px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
+    }
+
+    .btn-export {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 15px;
     }
 
     /* Mobile-optimized table - card layout */
@@ -1084,10 +1198,11 @@ body {
     }
 
     .btn-view,
+    .btn-delete,
     .btn-assign,
     .btn-complete {
         width: 100%;
-        margin-top: 4px;
+        margin: 0;
         padding: 10px 16px;
         font-size: 13px;
         font-weight: 500;

@@ -40,6 +40,9 @@ export async function onRequest(context) {
     } else if (path.startsWith('complaints/') && method === 'PUT') {
       const id = path.split('/')[1];
       response = await handleUpdateComplaint(request, env, id);
+    } else if (path.startsWith('complaints/') && method === 'DELETE') {
+      const id = path.split('/')[1];
+      response = await handleDeleteComplaint(request, env, id);
     } else {
       response = new Response(JSON.stringify({ error: 'Not found' }), {
         status: 404,
@@ -397,6 +400,63 @@ async function handleUpdateComplaint(request, env, id) {
     console.error('Update complaint error:', error);
     return new Response(
       JSON.stringify({ error: 'Failed to update complaint', message: error.message }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+}
+
+/**
+ * Delete a complaint
+ */
+async function handleDeleteComplaint(request, env, id) {
+  try {
+    // Check if complaint exists
+    const complaint = await env.DB.prepare(
+      'SELECT * FROM complaints WHERE id = ?'
+    ).bind(id).first();
+
+    if (!complaint) {
+      return new Response(
+        JSON.stringify({ error: 'Complaint not found' }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Delete the complaint from database
+    await env.DB.prepare('DELETE FROM complaints WHERE id = ?').bind(id).run();
+
+    // Note: We're not deleting images from R2 to maintain historical records
+    // If you want to delete images as well, you can add:
+    // if (complaint.before_image_url) {
+    //   const fileName = complaint.before_image_url.split('/').pop();
+    //   await env.ImageStore.delete(fileName);
+    // }
+    // if (complaint.after_image_url) {
+    //   const fileName = complaint.after_image_url.split('/').pop();
+    //   await env.ImageStore.delete(fileName);
+    // }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Complaint deleted successfully',
+        deletedId: id
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  } catch (error) {
+    console.error('Delete complaint error:', error);
+    return new Response(
+      JSON.stringify({ error: 'Failed to delete complaint', message: error.message }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
