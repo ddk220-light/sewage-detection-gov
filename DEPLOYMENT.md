@@ -34,19 +34,39 @@ npx wrangler d1 execute complaints_db --remote --command "SELECT name FROM sqlit
 # You should see 'complaints' in the output
 ```
 
+## Step 2.5: Enable R2 Public Access
+
+The R2 bucket must have public access enabled for images to be viewable:
+
+1. Go to Cloudflare Dashboard > R2
+2. Click on your bucket: `gov-complaint-images`
+3. Go to **Settings** > **Public Access**
+4. Click **"Allow Access"** or **"Connect Domain"**
+5. Note the public URL: `https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev`
+
+If the bucket doesn't exist yet:
+```bash
+npx wrangler r2 bucket create gov-complaint-images
+```
+
 ## Step 3: Set Environment Variables
+
+⚠️ **CRITICAL**: The R2_PUBLIC_URL must be set as an environment variable in Cloudflare Pages. The value in `wrangler.toml` only works for local development!
 
 In your Cloudflare Pages dashboard:
 
 1. Go to your Pages project settings
 2. Navigate to **Settings** > **Environment variables**
-3. Add the following variables:
+3. Add the following variables for **Production** environment:
 
 ```
+R2_PUBLIC_URL=https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=[your-secure-password]
 DEV_PASSWORD=[your-dev-portal-password]
 ```
+
+**Without R2_PUBLIC_URL, images will not display in the admin portal!**
 
 ## Step 4: Configure Bindings
 
@@ -118,6 +138,42 @@ npx wrangler pages dev . --d1 DB=complaints_db --r2 ImageStore=gov-complaint-ima
 **Solution:**
 1. Verify environment variables are set in Cloudflare Pages dashboard
 2. For local development, ensure `.dev.vars` file exists with correct credentials
+
+### Images Not Showing in Admin Portal
+
+**Cause:** R2_PUBLIC_URL environment variable not set or complaints created before it was configured
+
+**Solution:**
+1. **Verify environment variable:**
+   - Go to Cloudflare Pages > Settings > Environment variables
+   - Ensure `R2_PUBLIC_URL=https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev` is set for Production
+   - Click "Save" and redeploy your site
+
+2. **Use diagnostic tool:**
+   - Visit `https://your-site.pages.dev/diagnostic.html`
+   - Click "Run Diagnostic Check"
+   - This will show you the actual image URLs stored in the database
+   - Check browser console (F12) for detailed logs
+
+3. **Check browser console:**
+   - Open developer tools (F12) and go to Console tab
+   - Look for logs showing image URLs when viewing complaints:
+     ```
+     Complaint #X image URLs: { before_image_url: "...", after_image_url: "..." }
+     Viewing complaint: { beforeImage: "...", afterImage: "..." }
+     Before image loaded successfully: https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev/...
+     ```
+   - If URLs are missing or incorrect, the R2_PUBLIC_URL wasn't set when complaints were created
+
+4. **Test image URL directly:**
+   - Copy an image URL from the console logs
+   - Open it in a new browser tab
+   - If you get 403 Forbidden, ensure R2 bucket has public access enabled
+   - If you get 404 Not Found, the image wasn't uploaded correctly
+
+5. **If old complaints have wrong URLs:**
+   - Option A: Delete old test complaints and create new ones
+   - Option B: Manually update URLs in database (advanced)
 
 ## Testing the Deployment
 

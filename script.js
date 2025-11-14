@@ -240,18 +240,26 @@ async function loadComplaintsFromServer() {
         state.complaints = await fetchComplaints();
 
         // Convert database field names to camelCase for frontend consistency
-        state.complaints = state.complaints.map(c => ({
-            id: c.id,
-            location: c.location,
-            description: c.description,
-            contact: c.contact,
-            status: c.status,
-            assignedTo: c.assigned_to,
-            beforeImage: c.before_image_url,
-            afterImage: c.after_image_url,
-            submittedAt: c.submitted_at,
-            completedAt: c.completed_at
-        }));
+        state.complaints = state.complaints.map(c => {
+            // Debug logging for image URLs
+            console.log(`Complaint #${c.id} image URLs:`, {
+                before_image_url: c.before_image_url,
+                after_image_url: c.after_image_url
+            });
+
+            return {
+                id: c.id,
+                location: c.location,
+                description: c.description,
+                contact: c.contact,
+                status: c.status,
+                assignedTo: c.assigned_to,
+                beforeImage: c.before_image_url,
+                afterImage: c.after_image_url,
+                submittedAt: c.submitted_at,
+                completedAt: c.completed_at
+            };
+        });
 
         hideLoadingState();
     } catch (error) {
@@ -637,6 +645,13 @@ async function submitCompletion() {
 function viewComplaint(index) {
     const complaint = state.complaints[index];
 
+    // Debug logging
+    console.log('Viewing complaint:', {
+        id: complaint.id,
+        beforeImage: complaint.beforeImage,
+        afterImage: complaint.afterImage
+    });
+
     const submittedDate = new Date(complaint.submittedAt).toLocaleString();
     const completedDate = complaint.completedAt ? new Date(complaint.completedAt).toLocaleString() : 'Not completed';
 
@@ -650,15 +665,51 @@ function viewComplaint(index) {
         statusText = 'Completed';
     }
 
+    // Generate after image HTML with error handling
     let afterImageHTML = '';
     if (complaint.afterImage) {
         afterImageHTML = `
             <div class="detail-section">
                 <h4>After Photo (Resolved)</h4>
-                <img src="${complaint.afterImage}" alt="After Photo" class="detail-image">
+                <div class="image-container">
+                    <img src="${complaint.afterImage}"
+                         alt="After Photo"
+                         class="detail-image"
+                         onerror="this.onerror=null; this.src=''; this.style.display='none'; this.nextElementSibling.style.display='block';"
+                         onload="console.log('After image loaded successfully:', '${complaint.afterImage}')">
+                    <div style="display:none; padding: 20px; background: #fef2f2; border: 1px solid #dc2626; border-radius: 4px; color: #dc2626;">
+                        ⚠️ Failed to load image<br>
+                        <small style="font-family: monospace; font-size: 12px;">${complaint.afterImage}</small>
+                    </div>
+                </div>
             </div>
         `;
     }
+
+    // Generate before image HTML with error handling
+    const beforeImageHTML = complaint.beforeImage ? `
+        <div class="detail-section">
+            <h4>Before Photo (Issue Reported)</h4>
+            <div class="image-container">
+                <img src="${complaint.beforeImage}"
+                     alt="Before Photo"
+                     class="detail-image"
+                     onerror="this.onerror=null; this.src=''; this.style.display='none'; this.nextElementSibling.style.display='block';"
+                     onload="console.log('Before image loaded successfully:', '${complaint.beforeImage}')">
+                <div style="display:none; padding: 20px; background: #fef2f2; border: 1px solid #dc2626; border-radius: 4px; color: #dc2626;">
+                    ⚠️ Failed to load image<br>
+                    <small style="font-family: monospace; font-size: 12px;">${complaint.beforeImage}</small>
+                </div>
+            </div>
+        </div>
+    ` : `
+        <div class="detail-section">
+            <h4>Before Photo (Issue Reported)</h4>
+            <div style="padding: 20px; background: #fef2f2; border: 1px solid #dc2626; border-radius: 4px; color: #dc2626;">
+                ⚠️ No image URL found in database
+            </div>
+        </div>
+    `;
 
     const detailsHTML = `
         <div class="complaint-details">
@@ -694,10 +745,7 @@ function viewComplaint(index) {
                 <h4>Description</h4>
                 <p class="detail-description">${complaint.description}</p>
             </div>
-            <div class="detail-section">
-                <h4>Before Photo (Issue Reported)</h4>
-                <img src="${complaint.beforeImage}" alt="Before Photo" class="detail-image">
-            </div>
+            ${beforeImageHTML}
             ${afterImageHTML}
         </div>
     `;
