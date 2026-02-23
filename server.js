@@ -24,6 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Set up image serving from either Railway Volume or local dev directory
+const UPLOAD_DIR = process.env.RAILWAY_ENVIRONMENT ? '/data/images' : path.join(__dirname, 'public/uploads');
+app.use('/images', express.static(UPLOAD_DIR));
+
 // Configure routes
 app.use('/api/complaints', complaintsRouter);
 

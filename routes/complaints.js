@@ -1,29 +1,39 @@
 import express from 'express';
 import multer from 'multer';
 import jwt from 'jsonwebtoken';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import pool from '../db.js';
+import fs from 'fs';
+import path from 'path';
 
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_development_secret_key_change_me';
 
+// Use the Railway Volume path if present, otherwise fallback to local public/uploads for dev
+const UPLOAD_DIR = process.env.RAILWAY_ENVIRONMENT ? '/data/images' : path.join(process.cwd(), 'public/uploads');
+
+// Ensure the upload directory exists
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+// Configure Multer for local disk storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, UPLOAD_DIR);
+    },
+    filename: function (req, file, cb) {
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(7);
+        const fileExtension = file.originalname.split('.').pop() || 'jpg';
+        cb(null, `${file.fieldname} -${timestamp} -${randomStr}.${fileExtension} `);
+    }
+});
+
 const upload = multer({
-    storage: multer.memoryStorage(),
+    storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
-
-const s3Client = new S3Client({
-    region: 'auto',
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-    },
-});
-
-const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || 'gov-complaint-images';
-const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || 'https://pub-62cfd0f5ce354768976829718b8e95cd.r2.dev';
 
 // Authentication Middleware
 export const authenticateToken = (req, res, next) => {
@@ -60,25 +70,14 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields: location, description, and image are required' });
         }
 
-        const timestamp = Date.now();
-        const randomStr = Math.random().toString(36).substring(7);
-        const fileExtension = imageFile.originalname.split('.').pop() || 'jpg';
-        const fileName = `before-${timestamp}-${randomStr}.${fileExtension}`;
-
-        const putCommand = new PutObjectCommand({
-            Bucket: R2_BUCKET_NAME,
-            Key: fileName,
-            Body: imageFile.buffer,
-            ContentType: imageFile.mimetype,
-        });
-
-        await s3Client.send(putCommand);
-        const imageUrl = `${R2_PUBLIC_URL}/${fileName}`;
+        // The file is already saved to disk by multer, we just need the path.
+        // We store the relative URL string so the frontend can access it via the static file server
+        const imageUrl = `/ images / ${imageFile.filename} `;
 
         const result = await pool.query(
-            `INSERT INTO complaints (location, description, contact, status, before_image_url)
-       VALUES ($1, $2, $3, 'pending', $4)
-       RETURNING *`,
+            `INSERT INTO complaints(location, description, contact, status, before_image_url)
+VALUES($1, $2, $3, 'pending', $4)
+RETURNING * `,
             [location, description, contact, imageUrl]
         );
 
@@ -105,32 +104,18 @@ router.put('/:id', authenticateToken, upload.single('after_image'), async (req, 
         let queryIndex = 1;
 
         if (status) {
-            updateFields.push(`status = $${queryIndex++}`);
+            updateFields.push(`status = $${queryIndex++} `);
             values.push(status);
         }
 
         if (assigned_to) {
-            updateFields.push(`assigned_to = $${queryIndex++}`);
+            updateFields.push(`assigned_to = $${queryIndex++} `);
             values.push(assigned_to);
         }
 
         if (afterImage) {
-            const timestamp = Date.now();
-            const randomStr = Math.random().toString(36).substring(7);
-            const fileExtension = afterImage.originalname.split('.').pop() || 'jpg';
-            const fileName = `after-${timestamp}-${randomStr}.${fileExtension}`;
-
-            const putCommand = new PutObjectCommand({
-                Bucket: R2_BUCKET_NAME,
-                Key: fileName,
-                Body: afterImage.buffer,
-                ContentType: afterImage.mimetype,
-            });
-
-            await s3Client.send(putCommand);
-            const afterImageUrl = `${R2_PUBLIC_URL}/${fileName}`;
-
-            updateFields.push(`after_image_url = $${queryIndex++}`);
+            const afterImageUrl = `/ images / ${afterImage.filename} `;
+            updateFields.push(`after_image_url = $${queryIndex++} `);
             values.push(afterImageUrl);
         }
 
@@ -143,7 +128,7 @@ router.put('/:id', authenticateToken, upload.single('after_image'), async (req, 
         }
 
         values.push(id);
-        const query = `UPDATE complaints SET ${updateFields.join(', ')} WHERE id = $${queryIndex} RETURNING *`;
+        const query = `UPDATE complaints SET ${updateFields.join(', ')} WHERE id = $${queryIndex} RETURNING * `;
 
         const result = await pool.query(query, values);
 
@@ -173,22 +158,25 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         }
 
         const complaint = checkResult.rows[0];
-        const deleteParams = [];
+        const filesToDelete = [];
 
+        // Extract filename from the stored URL string (e.g. "/images/file-123.jpg" -> "file-123.jpg")
         if (complaint.before_image_url) {
             const key = complaint.before_image_url.split('/').pop();
-            if (key) deleteParams.push({ Bucket: R2_BUCKET_NAME, Key: key });
+            if (key) filesToDelete.push(path.join(UPLOAD_DIR, key));
         }
         if (complaint.after_image_url) {
             const key = complaint.after_image_url.split('/').pop();
-            if (key) deleteParams.push({ Bucket: R2_BUCKET_NAME, Key: key });
+            if (key) filesToDelete.push(path.join(UPLOAD_DIR, key));
         }
 
-        for (const params of deleteParams) {
-            try {
-                await s3Client.send(new DeleteObjectCommand(params));
-            } catch (s3error) {
-                console.error('Failed to delete image from R2:', s3error);
+        for (const filePath of filesToDelete) {
+            if (fs.existsSync(filePath)) {
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error(`Failed to delete local image ${filePath}: `, err);
+                }
             }
         }
 
