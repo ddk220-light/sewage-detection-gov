@@ -11,10 +11,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const connectionString = process.env.DATABASE_URL;
+const isInternalOrLocal = connectionString && (
+  connectionString.includes('.internal') ||
+  connectionString.includes('localhost') ||
+  connectionString.includes('127.0.0.1')
+);
 
 const pool = new Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl: isInternalOrLocal ? false : { rejectUnauthorized: false },
   connectionTimeoutMillis: 15000
 });
 
