@@ -31,3 +31,6 @@ Thumbs.db
 dist/
 build/
 .cache/
+
+node_modules/
+.env

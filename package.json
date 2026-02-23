@@ -1,0 +1,36 @@
+{
+  "name": "sewage-detection-gov",
+  "version": "1.0.0",
+  "description": "An interactive click-through prototype demonstrating a comprehensive sewage complaint management system that integrates WhatsApp-based citizen reporting with an internal government portal for complaint tracking and resolution.",
+  "main": "dev.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node db.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddk220-light/sewage-detection-gov.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/ddk220-light/sewage-detection-gov/issues"
+  },
+  "homepage": "https://github.com/ddk220-light/sewage-detection-gov#readme",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.995.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "pg": "^8.18.0"
+  }
+}
