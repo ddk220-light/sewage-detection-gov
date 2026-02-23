@@ -16,31 +16,39 @@ const isInternal = connectionString && connectionString.includes('.internal');
 const pool = new Pool({
   connectionString,
   ssl: isInternal ? false : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
-  connectionTimeoutMillis: 5000
+  connectionTimeoutMillis: 15000
 });
 
 async function initDB() {
   console.log('Connecting to database...', connectionString ? connectionString.replace(/:[^:@]*@/, ':***@') : 'UNDEFINED');
-  const client = await pool.connect();
-  try {
-    console.log('Reading schema file...');
-    const schemaPath = path.join(__dirname, 'schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
 
-    console.log('Executing schema...');
-    await client.query(schema);
-    console.log('Database initialized successfully!');
-  } catch (err) {
-    console.error('Error initializing database:', err);
-  } finally {
-    client.release();
-    await pool.end();
+  let retries = 10;
+  while (retries > 0) {
+    try {
+      const client = await pool.connect();
+      try {
+        console.log('Reading schema file...');
+        const schemaPath = path.join(__dirname, 'schema.sql');
+        const schema = fs.readFileSync(schemaPath, 'utf8');
+        console.log('Executing schema...');
+        await client.query(schema);
+        console.log('Database initialized successfully!');
+        return;
+      } finally {
+        client.release();
+      }
+    } catch (err) {
+      retries--;
+      console.error(`DB connection failed (${retries} retries left):`, err.message);
+      if (retries === 0) throw err;
+      await new Promise(r => setTimeout(r, 3000));
+    }
   }
 }
 
 // Run if called directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  initDB();
+  initDB().catch(console.error);
 }
 
 export default pool;
