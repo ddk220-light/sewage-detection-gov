@@ -15,10 +15,12 @@ const isInternal = connectionString && connectionString.includes('.internal');
 
 const pool = new Pool({
   connectionString,
-  ssl: isInternal ? false : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false)
+  ssl: isInternal ? false : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
+  connectionTimeoutMillis: 5000
 });
 
 async function initDB() {
+  console.log('Connecting to database...', connectionString ? connectionString.replace(/:[^:@]*@/, ':***@') : 'UNDEFINED');
   const client = await pool.connect();
   try {
     console.log('Reading schema file...');
