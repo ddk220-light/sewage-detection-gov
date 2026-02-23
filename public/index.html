@@ -3,74 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sewage Complaint System - Government of India</title>
+    <title>Sewage Complaint Portal - Mayiladuthurai Municipal Corporation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Public Complaint Submission View -->
     <div id="public-view" class="view-container">
-        <div class="public-header">
-            <div class="header-logo">
-                <div class="emblem">🇮🇳</div>
-                <div class="header-text">
-                    <h1 data-i18n="title">Mayiladuthurai Municipal Corporation</h1>
-                    <p data-i18n="subtitle">Citizen Complaint Management System</p>
+        <!-- Top national bar -->
+        <div class="national-bar">
+            <div class="national-bar-inner">
+                <span class="national-bar-text">Government of India | भारत सरकार</span>
+                <div class="national-bar-actions">
+                    <button id="language-toggle" class="lang-toggle" onclick="toggleLanguage()">தமிழ்</button>
+                    <button class="admin-link-btn" onclick="showAdminLogin()" data-i18n="adminLogin">Admin Login</button>
                 </div>
             </div>
-            <div class="header-actions">
-                <button id="language-toggle" class="language-toggle-btn" onclick="toggleLanguage()">தமிழ்</button>
-                <button class="admin-link-btn" onclick="showAdminLogin()" data-i18n="adminLogin">Admin Login</button>
+        </div>
+
+        <!-- Tricolor strip -->
+        <div class="tricolor-strip">
+            <div class="tri-saffron"></div>
+            <div class="tri-white"></div>
+            <div class="tri-green"></div>
+        </div>
+
+        <!-- Main header -->
+        <header class="gov-header">
+            <div class="gov-header-inner">
+                <div class="gov-identity">
+                    <div class="emblem-container">
+                        <svg class="ashoka-emblem" viewBox="0 0 100 100" width="64" height="64">
+                            <circle cx="50" cy="50" r="46" fill="none" stroke="#1a2744" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="36" fill="none" stroke="#1a2744" stroke-width="1.5"/>
+                            <!-- Ashoka Chakra spokes -->
+                            <circle cx="50" cy="50" r="8" fill="#1a2744"/>
+                            <circle cx="50" cy="50" r="5" fill="#fff"/>
+                            <circle cx="50" cy="50" r="2" fill="#1a2744"/>
+                            <!-- 24 spokes -->
+                            <g stroke="#1a2744" stroke-width="1.2">
+                                <line x1="50" y1="14" x2="50" y2="42"/><line x1="50" y1="58" x2="50" y2="86"/>
+                                <line x1="14" y1="50" x2="42" y2="50"/><line x1="58" y1="50" x2="86" y2="50"/>
+                                <line x1="24.6" y1="24.6" x2="44.3" y2="44.3"/><line x1="55.7" y1="55.7" x2="75.4" y2="75.4"/>
+                                <line x1="75.4" y1="24.6" x2="55.7" y2="44.3"/><line x1="44.3" y1="55.7" x2="24.6" y2="75.4"/>
+                                <line x1="36.5" y1="17.2" x2="47" y2="43"/><line x1="53" y1="57" x2="63.5" y2="82.8"/>
+                                <line x1="63.5" y1="17.2" x2="53" y2="43"/><line x1="47" y1="57" x2="36.5" y2="82.8"/>
+                                <line x1="17.2" y1="36.5" x2="43" y2="47"/><line x1="57" y1="53" x2="82.8" y2="63.5"/>
+                                <line x1="82.8" y1="36.5" x2="57" y2="47"/><line x1="43" y1="53" x2="17.2" y2="63.5"/>
+                                <line x1="21" y1="31" x2="44.8" y2="45.2"/><line x1="55.2" y1="54.8" x2="79" y2="69"/>
+                                <line x1="79" y1="31" x2="55.2" y2="45.2"/><line x1="44.8" y1="54.8" x2="21" y2="69"/>
+                                <line x1="31" y1="21" x2="45.2" y2="44.8"/><line x1="54.8" y1="55.2" x2="69" y2="79"/>
+                                <line x1="69" y1="21" x2="54.8" y2="44.8"/><line x1="45.2" y1="55.2" x2="31" y2="79"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="gov-text">
+                        <h1 class="gov-title" data-i18n="title">Mayiladuthurai Municipal Corporation</h1>
+                        <p class="gov-subtitle" data-i18n="subtitle">Citizen Complaint Management System</p>
+                        <p class="gov-dept">Department of Urban Local Bodies, Tamil Nadu</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumb / info bar -->
+        <div class="info-bar">
+            <div class="info-bar-inner">
+                <nav class="breadcrumb">
+                    <span>Home</span>
+                    <span class="breadcrumb-sep">/</span>
+                    <span>Public Services</span>
+                    <span class="breadcrumb-sep">/</span>
+                    <span class="breadcrumb-active">File a Complaint</span>
+                </nav>
+                <div class="info-bar-meta">
+                    <span class="helpline">Helpline: 1800-XXX-XXXX</span>
+                </div>
             </div>
         </div>
-        <div class="public-content">
-            <div class="complaint-form-container">
-                <h2 data-i18n="formTitle">Submit a Sewage Complaint</h2>
-                <p class="form-description" data-i18n="formDescription">Report sewage issues in your area. We will track and resolve your complaint promptly.</p>
 
-                <form id="complaint-form">
-                    <div class="form-group">
-                        <label for="complaint-location" data-i18n="labelLocation">Location *</label>
-                        <input type="text" id="complaint-location" data-i18n-placeholder="placeholderLocation" placeholder="Enter street address or area name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="complaint-description" data-i18n="labelDescription">Description *</label>
-                        <textarea id="complaint-description" rows="4" data-i18n-placeholder="placeholderDescription" placeholder="Describe the sewage issue..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="complaint-contact" data-i18n="labelContact">Contact Number *</label>
-                        <input type="tel" id="complaint-contact" data-i18n-placeholder="placeholderContact" placeholder="Your phone number" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label data-i18n="labelPhoto">Upload Photo of the Issue *</label>
-                        <div class="upload-box" id="public-upload-box">
-                            <div class="upload-icon">📷</div>
-                            <p data-i18n="uploadText">Click to upload or drag and drop</p>
-                            <p class="upload-hint" data-i18n="uploadHint">JPG, PNG up to 10MB</p>
-                            <input type="file" id="public-image-upload" accept="image/*" style="display: none;" required>
+        <!-- Main content area -->
+        <main class="public-main">
+            <div class="content-grid">
+                <!-- Left sidebar - information panel -->
+                <aside class="info-panel">
+                    <div class="info-card">
+                        <div class="info-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
                         </div>
-                        <div class="image-preview-box" id="public-image-preview" style="display: none;">
-                            <img id="public-preview-img" src="" alt="Preview">
-                            <button type="button" class="btn-change-image" onclick="changePublicImage()" data-i18n="changeImage">Change Image</button>
-                        </div>
+                        <h3>How It Works</h3>
+                        <ol class="info-steps">
+                            <li>Fill in the complaint details with the location and description of the issue</li>
+                            <li>Upload a clear photograph of the sewage problem</li>
+                            <li>Submit and receive a unique Complaint ID</li>
+                            <li>A sanitation officer will be assigned within 24 hours</li>
+                        </ol>
                     </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </div>
+                        <h3>Contact Information</h3>
+                        <p class="contact-detail">Municipal Office: 04364-222XXX</p>
+                        <p class="contact-detail">Toll Free: 1800-XXX-XXXX</p>
+                        <p class="contact-detail">Email: complaints@mayiladuthurai.gov.in</p>
+                    </div>
+                    <div class="info-card notice-card">
+                        <h3>Important Notice</h3>
+                        <p>All complaints are monitored by the Municipal Commissioner's office. Officers are mandated to respond within 48 working hours.</p>
+                    </div>
+                </aside>
 
-                    <button type="submit" class="btn-submit-complaint" data-i18n="submitButton">Submit Complaint</button>
-                </form>
+                <!-- Main form area -->
+                <div class="form-panel">
+                    <div class="complaint-form-container">
+                        <div class="form-header">
+                            <h2 data-i18n="formTitle">Submit a Sewage Complaint</h2>
+                            <p class="form-description" data-i18n="formDescription">Report sewage issues in your area. We will track and resolve your complaint promptly.</p>
+                            <div class="form-mandatory-note">All fields marked with <span class="required-star">*</span> are mandatory</div>
+                        </div>
+
+                        <form id="complaint-form">
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label for="complaint-location"><span class="required-star">*</span> <span data-i18n="labelLocation">Location</span></label>
+                                    <input type="text" id="complaint-location" data-i18n-placeholder="placeholderLocation" placeholder="Enter street address or area name" required>
+                                    <span class="field-help">e.g., Gandhi Street, Ward 15, Near Bus Stand</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="complaint-description"><span class="required-star">*</span> <span data-i18n="labelDescription">Description</span></label>
+                                    <textarea id="complaint-description" rows="4" data-i18n-placeholder="placeholderDescription" placeholder="Describe the sewage issue..." required></textarea>
+                                    <span class="field-help">Provide a clear description including how long the issue has persisted</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="complaint-contact"><span class="required-star">*</span> <span data-i18n="labelContact">Contact Number</span></label>
+                                    <input type="tel" id="complaint-contact" data-i18n-placeholder="placeholderContact" placeholder="Your phone number" required>
+                                    <span class="field-help">We will use this number to contact you regarding your complaint</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label><span class="required-star">*</span> <span data-i18n="labelPhoto">Upload Photo of the Issue</span></label>
+                                    <div class="upload-box" id="public-upload-box">
+                                        <div class="upload-icon-svg">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        </div>
+                                        <p class="upload-main-text" data-i18n="uploadText">Click to upload or drag and drop</p>
+                                        <p class="upload-hint" data-i18n="uploadHint">JPG, PNG up to 10MB</p>
+                                        <input type="file" id="public-image-upload" accept="image/*" style="display: none;" required>
+                                    </div>
+                                    <div class="image-preview-box" id="public-image-preview" style="display: none;">
+                                        <img id="public-preview-img" src="" alt="Preview">
+                                        <button type="button" class="btn-change-image" onclick="changePublicImage()" data-i18n="changeImage">Change Image</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-submit-complaint" data-i18n="submitButton">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    Submit Complaint
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="gov-footer">
+            <div class="footer-tricolor">
+                <div class="tri-saffron"></div>
+                <div class="tri-white"></div>
+                <div class="tri-green"></div>
+            </div>
+            <div class="footer-inner">
+                <div class="footer-content">
+                    <div class="footer-col">
+                        <h4>Mayiladuthurai Municipal Corporation</h4>
+                        <p>Department of Urban Local Bodies<br>Government of Tamil Nadu</p>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <p>RTI Online</p>
+                        <p>Citizen Charter</p>
+                        <p>Grievance Redressal</p>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Disclaimer</h4>
+                        <p>This is an official portal. Misuse of this system is punishable under the IT Act, 2000.</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>Content Owned by Mayiladuthurai Municipal Corporation, Government of Tamil Nadu</p>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- Admin Login View -->
     <div id="admin-login-view" class="view-container" style="display: none;">
+        <div class="national-bar">
+            <div class="national-bar-inner">
+                <span class="national-bar-text">Government of India | भारत सरकार</span>
+            </div>
+        </div>
+        <div class="tricolor-strip">
+            <div class="tri-saffron"></div>
+            <div class="tri-white"></div>
+            <div class="tri-green"></div>
+        </div>
         <div class="login-container">
             <div class="login-box">
                 <div class="login-header">
-                    <div class="emblem">🇮🇳</div>
-                    <h2>Admin Login</h2>
+                    <svg class="login-emblem" viewBox="0 0 100 100" width="56" height="56">
+                        <circle cx="50" cy="50" r="46" fill="none" stroke="#1a2744" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="8" fill="#1a2744"/>
+                        <circle cx="50" cy="50" r="5" fill="#fff"/>
+                        <circle cx="50" cy="50" r="2" fill="#1a2744"/>
+                        <g stroke="#1a2744" stroke-width="1.2">
+                            <line x1="50" y1="14" x2="50" y2="42"/><line x1="50" y1="58" x2="50" y2="86"/>
+                            <line x1="14" y1="50" x2="42" y2="50"/><line x1="58" y1="50" x2="86" y2="50"/>
+                            <line x1="24.6" y1="24.6" x2="44.3" y2="44.3"/><line x1="55.7" y1="55.7" x2="75.4" y2="75.4"/>
+                            <line x1="75.4" y1="24.6" x2="55.7" y2="44.3"/><line x1="44.3" y1="55.7" x2="24.6" y2="75.4"/>
+                        </g>
+                    </svg>
+                    <h2>Administrative Portal</h2>
                     <p>Mayiladuthurai Municipal Corporation</p>
+                    <p class="login-subtext">Authorized Personnel Only</p>
                 </div>
                 <form id="admin-login-form">
                     <div class="form-group">
@@ -84,8 +248,8 @@
                     <div class="login-hint">
                         Default credentials: username: <strong>admin</strong>, password: <strong>admin123</strong>
                     </div>
-                    <button type="submit" class="btn-login">Login</button>
-                    <button type="button" class="btn-back" onclick="showPublicView()">Back to Public View</button>
+                    <button type="submit" class="btn-login">Sign In</button>
+                    <button type="button" class="btn-back" onclick="showPublicView()">Back to Public Portal</button>
                 </form>
             </div>
         </div>
@@ -93,36 +257,91 @@
 
     <!-- Admin Dashboard View -->
     <div id="admin-dashboard-view" class="view-container" style="display: none;">
-        <div class="admin-header">
-            <div class="header-logo">
-                <div class="emblem">🇮🇳</div>
-                <div class="header-text">
-                    <h1>Mayiladuthurai Municipal Corporation</h1>
-                    <p>Citizen Complaint Management System</p>
+        <div class="national-bar">
+            <div class="national-bar-inner">
+                <span class="national-bar-text">Government of India | भारत सरकार</span>
+                <div class="national-bar-actions">
+                    <span class="admin-badge">Admin Portal</span>
+                    <button class="btn-logout" onclick="logout()">Sign Out</button>
                 </div>
-            </div>
-            <div class="admin-actions">
-                <span class="admin-user">Admin Portal</span>
-                <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
         </div>
+        <div class="tricolor-strip">
+            <div class="tri-saffron"></div>
+            <div class="tri-white"></div>
+            <div class="tri-green"></div>
+        </div>
+        <header class="gov-header admin-gov-header">
+            <div class="gov-header-inner">
+                <div class="gov-identity">
+                    <div class="emblem-container">
+                        <svg class="ashoka-emblem" viewBox="0 0 100 100" width="56" height="56">
+                            <circle cx="50" cy="50" r="46" fill="none" stroke="#1a2744" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="36" fill="none" stroke="#1a2744" stroke-width="1.5"/>
+                            <circle cx="50" cy="50" r="8" fill="#1a2744"/>
+                            <circle cx="50" cy="50" r="5" fill="#fff"/>
+                            <circle cx="50" cy="50" r="2" fill="#1a2744"/>
+                            <g stroke="#1a2744" stroke-width="1.2">
+                                <line x1="50" y1="14" x2="50" y2="42"/><line x1="50" y1="58" x2="50" y2="86"/>
+                                <line x1="14" y1="50" x2="42" y2="50"/><line x1="58" y1="50" x2="86" y2="50"/>
+                                <line x1="24.6" y1="24.6" x2="44.3" y2="44.3"/><line x1="55.7" y1="55.7" x2="75.4" y2="75.4"/>
+                                <line x1="75.4" y1="24.6" x2="55.7" y2="44.3"/><line x1="44.3" y1="55.7" x2="24.6" y2="75.4"/>
+                                <line x1="36.5" y1="17.2" x2="47" y2="43"/><line x1="53" y1="57" x2="63.5" y2="82.8"/>
+                                <line x1="63.5" y1="17.2" x2="53" y2="43"/><line x1="47" y1="57" x2="36.5" y2="82.8"/>
+                                <line x1="17.2" y1="36.5" x2="43" y2="47"/><line x1="57" y1="53" x2="82.8" y2="63.5"/>
+                                <line x1="82.8" y1="36.5" x2="57" y2="47"/><line x1="43" y1="53" x2="17.2" y2="63.5"/>
+                                <line x1="21" y1="31" x2="44.8" y2="45.2"/><line x1="55.2" y1="54.8" x2="79" y2="69"/>
+                                <line x1="79" y1="31" x2="55.2" y2="45.2"/><line x1="44.8" y1="54.8" x2="21" y2="69"/>
+                                <line x1="31" y1="21" x2="45.2" y2="44.8"/><line x1="54.8" y1="55.2" x2="69" y2="79"/>
+                                <line x1="69" y1="21" x2="54.8" y2="44.8"/><line x1="45.2" y1="55.2" x2="31" y2="79"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="gov-text">
+                        <h1 class="gov-title">Mayiladuthurai Municipal Corporation</h1>
+                        <p class="gov-subtitle">Complaint Management Dashboard</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
         <div class="admin-content">
             <div class="admin-stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-complaints">0</div>
-                    <div class="stat-label">Total Complaints</div>
+                <div class="stat-card stat-total">
+                    <div class="stat-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <div class="stat-number" id="total-complaints">0</div>
+                        <div class="stat-label">Total Complaints</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="pending-complaints">0</div>
-                    <div class="stat-label">Pending</div>
+                <div class="stat-card stat-pending">
+                    <div class="stat-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <div class="stat-number" id="pending-complaints">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="processing-complaints">0</div>
-                    <div class="stat-label">In Process</div>
+                <div class="stat-card stat-processing">
+                    <div class="stat-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <div class="stat-number" id="processing-complaints">0</div>
+                        <div class="stat-label">In Process</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="completed-complaints">0</div>
-                    <div class="stat-label">Completed</div>
+                <div class="stat-card stat-completed">
+                    <div class="stat-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="stat-data">
+                        <div class="stat-number" id="completed-complaints">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
                 </div>
             </div>
 
@@ -130,7 +349,8 @@
                 <div class="section-header">
                     <h2>Complaint Registry</h2>
                     <button class="btn-export" onclick="exportComplaintsToCSV()" title="Download all complaints as CSV">
-                        📥 Export to CSV
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export to CSV
                     </button>
                 </div>
                 <div class="complaints-table">
@@ -144,7 +364,10 @@
                         <div class="col-action">Action</div>
                     </div>
                     <div class="table-body" id="complaints-list">
-                        <div class="no-complaints">No complaints registered yet</div>
+                        <div class="no-complaints">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <p>No complaints registered yet</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -154,10 +377,14 @@
     <!-- Success Modal -->
     <div class="modal-overlay" id="success-modal">
         <div class="modal-content success-modal-content">
-            <div class="success-icon">✓</div>
+            <div class="success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <h2 data-i18n="successTitle">Complaint Submitted Successfully!</h2>
-            <p><span data-i18n="successMessage">Your complaint has been registered with ID:</span> <strong id="complaint-id-display"></strong></p>
-            <p data-i18n="successInfo">We will track your complaint and notify you once it is resolved.</p>
+            <p class="success-id-line"><span data-i18n="successMessage">Your complaint has been registered with ID:</span></p>
+            <div class="success-complaint-id" id="complaint-id-display"></div>
+            <p class="success-info" data-i18n="successInfo">We will track your complaint and notify you once it is resolved.</p>
+            <div class="success-note">Please save your Complaint ID for future reference.</div>
             <button class="btn-ok" onclick="closeSuccessModal()" data-i18n="okButton">OK</button>
         </div>
     </div>
@@ -199,7 +426,9 @@
                 <p>Please upload a photo showing the resolved issue (after the work is completed).</p>
 
                 <div class="upload-area" id="upload-area">
-                    <div class="upload-icon">📷</div>
+                    <div class="upload-icon-svg">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
                     <p>Click to upload or drag and drop</p>
                     <p class="upload-hint">Upload a photo of the cleaned location</p>
                     <input type="file" id="completion-image-upload" accept="image/*" style="display: none;">
@@ -236,12 +465,15 @@
     <!-- Delete Confirmation Modal -->
     <div class="modal-overlay" id="delete-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚠️ Delete Complaint</h2>
+            <div class="modal-header modal-header-danger">
+                <h2>Delete Complaint</h2>
                 <button class="modal-close" onclick="closeDeleteModal()">×</button>
             </div>
             <div class="modal-body">
                 <div class="warning-message">
+                    <div class="warning-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
                     <p><strong>Warning:</strong> This complaint will be permanently deleted and cannot be recovered.</p>
                     <p>Are you sure you want to proceed?</p>
                     <div id="delete-complaint-info" class="delete-info"></div>
@@ -251,6 +483,14 @@
                 <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
                 <button class="btn-delete-confirm" onclick="confirmDelete()">Delete Permanently</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <p id="loading-text">Loading...</p>
         </div>
     </div>
 

@@ -910,17 +910,35 @@ function showNotification(message) {
 }
 
 function showError(message) {
-    alert(message);
+    const notification = document.createElement('div');
+    notification.className = 'notification-toast';
+    notification.style.borderLeftColor = '#dc2626';
+    notification.style.background = '#7f1d1d';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
 }
 
 function showLoadingState(message = 'Loading...') {
     state.isLoading = true;
-    // You can add a loading spinner overlay here if desired
-    console.log(message);
+    const overlay = document.getElementById('loading-overlay');
+    const text = document.getElementById('loading-text');
+    if (overlay) overlay.classList.add('active');
+    if (text) text.textContent = message;
 }
 
 function hideLoadingState() {
     state.isLoading = false;
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.classList.remove('active');
 }
 
 // ============ MULTI-LANGUAGE SUPPORT ============
